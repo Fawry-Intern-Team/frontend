@@ -1,0 +1,98 @@
+<div class="p-6 space-y-6">
+  <h2 class="text-xl font-bold text-gray-800">
+    Transactions for {{ accountName }} ({{ cardNumber }})
+  </h2>
+
+  <p-table
+    [value]="transactions"
+    [paginator]="true"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    responsiveLayout="scroll"
+    class="shadow rounded-xl overflow-hidden"
+  >
+    <ng-template pTemplate="header">
+      <tr class="bg-gray-100 text-gray-700">
+        <th class="p-3 text-left">#</th>
+        <th class="p-3 text-left">Type</th>
+        <th class="p-3 text-right">Amount</th>
+        <th class="p-3 text-left">Notes</th>
+        <th class="p-3 text-left">Date</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-tx let-i="rowIndex">
+      <tr class="hover:bg-gray-50 transition">
+        <td class="p-3 font-medium text-gray-800">{{ tx.transactionId }}</td>
+
+        <td class="p-3">
+          <span
+            class="inline-flex items-center gap-1 text-sm font-semibold"
+            [ngClass]="{
+              'text-green-600': tx.type === 'DEPOSIT',
+              'text-red-600': tx.type === 'WITHDRAWAL'
+            }"
+          >
+            <i
+              class="pi"
+              [ngClass]="{
+                'pi-arrow-down': tx.type === 'DEPOSIT',
+                'pi-arrow-up': tx.type === 'WITHDRAWAL'
+              }"
+            ></i>
+            {{ tx.type }}
+          </span>
+        </td>
+
+        <td class="p-3 text-right text-gray-900 font-semibold">
+          {{ tx.amount | currency : "USD" }}
+        </td>
+
+        <td class="p-3 text-gray-600 text-sm">
+          {{ tx.notes || "-" }}
+        </td>
+
+        <td class="p-3 text-gray-500 text-sm">
+          {{ tx.createdAt | date : "mediumDate" }}
+          <br />
+          <span class="text-xs">{{ tx.createdAt | date : "shortTime" }}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Doughnut Chart: Transaction Types -->
+  <div class="bg-white rounded-xl shadow p-6 my-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+      Transaction Type Breakdown
+    </h3>
+    <div class="flex justify-center">
+      <p-chart
+        type="doughnut"
+        [data]="doughnutChartData"
+        [options]="doughnutChartOptions"
+        styleClass="w-full max-w-md"
+      ></p-chart>
+    </div>
+  </div>
+
+  <!-- Line Chart: Transaction Volume -->
+  <div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+      Transaction Volume Over Time
+    </h3>
+    <p-chart
+      type="line"
+      [data]="lineChartData"
+      [options]="lineChartOptions"
+      styleClass="w-full h-80"
+    ></p-chart>
+  </div>
+
+  <a
+    routerLink="/admin/dashboard"
+    class="text-indigo-600 hover:underline text-sm mt-4 inline-block"
+  >
+    ← Back to Account List
+  </a>
+</div>

@@ -1,0 +1,22 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Card Number</label>
+        <input type="text" pInputText formControlName="cardNumber" class="w-full" />
+        <small class="text-red-500" *ngIf="loginForm.get('cardNumber')?.invalid && loginForm.get('cardNumber')?.touched">
+          Required
+        </small>
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input type="password" pPassword formControlName="password" class="w-full" [feedback]="false" />
+        <small class="text-red-500" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Required
+        </small>
+      </div>
+      <button pButton type="submit" label="Login" class="w-full" [disabled]="loginForm.invalid"></button>
+    </form>
+  </div>
+</div>
