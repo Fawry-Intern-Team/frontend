@@ -1,0 +1,30 @@
+.search-bar input {
+    background-color: #fff;
+    /* خلفية بيضاء */
+    color: #000;
+    /* كتابة سوداء */
+    font-size: 18px;
+    /* حجم خط أكبر */
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar button {
+    font-size: 18px;
+    /* حجم خط أكبر للزر */
+    padding: 8px 16px;
+    margin-left: 8px;
+    border: none;
+    background-color: #4CAF50;
+    /* أخضر */
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #45a049;
+    /* لون داكن عند الـ hover */
+}
+
