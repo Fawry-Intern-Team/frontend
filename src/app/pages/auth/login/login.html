@@ -4,19 +4,59 @@
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1">Card Number</label>
-        <input type="text" pInputText formControlName="cardNumber" class="w-full" />
-        <small class="text-red-500" *ngIf="loginForm.get('cardNumber')?.invalid && loginForm.get('cardNumber')?.touched">
+        <input
+          type="text"
+          pInputText
+          formControlName="cardNumber"
+          class="w-full"
+        />
+        <small
+          class="text-red-500"
+          *ngIf="
+            loginForm.get('cardNumber')?.invalid &&
+            loginForm.get('cardNumber')?.touched
+          "
+        >
           Required
         </small>
       </div>
       <div class="mb-6">
         <label class="block text-sm font-medium mb-1">Password</label>
-        <input type="password" pPassword formControlName="password" class="w-full" [feedback]="false" />
-        <small class="text-red-500" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        <input
+          type="password"
+          pPassword
+          formControlName="password"
+          class="w-full"
+          [feedback]="false"
+        />
+        <small
+          class="text-red-500"
+          *ngIf="
+            loginForm.get('password')?.invalid &&
+            loginForm.get('password')?.touched
+          "
+        >
           Required
         </small>
       </div>
-      <button pButton type="submit" label="Login" class="w-full" [disabled]="loginForm.invalid"></button>
+      <button
+        pButton
+        type="submit"
+        label="Login"
+        class="w-full"
+        [disabled]="loginForm.invalid"
+      ></button>
     </form>
+    <div class="text-center">
+      <a
+        [routerLink]="['/accounts/create']"
+        class="text-indigo-600 hover:underline text-md"
+      >
+        create account
+      </a>
+    </div>
+    <div class="mt-5">
+      <p class="text-center text-red-500">{{ message }}</p>
+    </div>
   </div>
 </div>

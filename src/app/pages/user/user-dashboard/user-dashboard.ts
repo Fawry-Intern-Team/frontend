@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { Transaction } from '../../../models/Transaction';
-
-import { dummyAccount } from '../../../mock-data/account.mock';
+import { AccountService } from '../../../services/account-service';
 import { Account } from '../../../models/Account';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
@@ -16,20 +15,24 @@ import { Account } from '../../../models/Account';
   styleUrl: './user-dashboard.css'
 })
 export class UserDashboard implements OnInit {
-  account:any;
+  account: Account | null = null;
   chartData: any;
   chartOptions: any;
   cardNumber = localStorage.getItem('cardNumber'); // or decode from JWT
-  constructor(private http: HttpClient) { }
+  constructor(
+    private accountService: AccountService
+    , private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.account = dummyAccount;
 
-    const labels = this.account.transactions.map((tx:Transaction)=>
+    this.account = this.accountService.getLoggedInUser();
+
+    const labels = this.account?.transactions.map((tx: Transaction) =>
       new Date(tx.createdAt).toLocaleDateString()
     );
 
-    const amounts = this.account.transactions.map((tx:Transaction) =>
+    const amounts = this.account?.transactions.map((tx: Transaction) =>
       tx.type === 'DEPOSIT' ? tx.amount : -tx.amount
     );
 

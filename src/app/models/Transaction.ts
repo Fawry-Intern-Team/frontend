@@ -1,5 +1,5 @@
 export interface Transaction {
-  transactionId: number;
+  transactionId: string;
   type: 'DEPOSIT' | 'WITHDRAWAL';
   amount: number;
   notes: string;

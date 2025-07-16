@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { MessageModule } from 'primeng/message';
+import { AccountService } from '../../../services/account-service';
+import { AccountLogin } from '../../../models/Account';
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -19,19 +21,20 @@ import { MessageService } from 'primeng/api';
     PasswordModule,
     ButtonModule,
     ToastModule,
+    MessageModule,
+    RouterModule
   ],
-  providers: [MessageService],
+  providers: [],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
   loginForm: FormGroup;
-
+  message: string = '';
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
     private router: Router,
-    private messageService: MessageService
+    private accountService: AccountService
   ) {
     this.loginForm = this.fb.group({
       cardNumber: ['', Validators.required],
@@ -39,25 +42,24 @@ export class Login {
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) return;
-    const formData = this.loginForm.value;
-    this.http.post<any>('http://localhost:8000/api/accounts/login', formData).subscribe({
-      next: (res) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('role', res.role);
+ onSubmit() {
+  if (this.loginForm.invalid) return;
 
-        this.messageService.add({ severity: 'success', summary: 'Login Success' });
+  const formData: AccountLogin = this.loginForm.value;
 
-        if (res.role === 'ADMIN') {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/user/dashboard']);
-        }
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: 'Invalid credentials' });
-      }
-    });
-  }
+  this.accountService.login(formData).subscribe({
+    next: data => {
+      this.accountService.setLoggedInUser(data);
+      this.router.navigate(['user/dashboard']);
+    },
+    error: err => {
+      console.log('Login error:', err);
+      this.message = err?.error || 'An unexpected error occurred';
+      setTimeout(() => {
+        this.message = '';
+      }, 3000);
+    }
+  });
+}
+
 }

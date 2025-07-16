@@ -5,13 +5,13 @@ import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { Account } from '../../../models/Account';
-import { dummyAccounts } from '../../../mock-data/account.mock';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { RouterModule } from '@angular/router';
+import { AccountService } from '../../../services/account-service';
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [CommonModule, TableModule, CardModule, InputTextModule, FormsModule, ChartModule,RouterModule],
+  imports: [CommonModule, TableModule, CardModule, InputTextModule, FormsModule, ChartModule, RouterModule],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css'
 })
@@ -26,15 +26,26 @@ export class AdminDashboard {
   lineChartData: any;
   lineChartOptions: any;
 
+  constructor(private accountService: AccountService) { }
 
   ngOnInit(): void {
-    this.accounts = dummyAccounts;
-    this.totalAccounts = this.accounts.length;
-    this.totalBalance = this.accounts.reduce((sum, acc) => sum + acc.balance, 0);
-    this.totalTransactions = this.accounts.reduce((sum, acc) => sum + acc.transactions.length, 0);
+    this.accountService.getAllAccounts().subscribe(
+      {
+        next: (res) => {
+          this.accounts = res.content;
+          this.totalAccounts = this.accounts.length;
+          this.totalBalance = this.accounts.reduce((sum, acc) => sum + acc.balance, 0);
+          this.totalTransactions = this.accounts.reduce((sum, acc) => sum + acc.transactions.length, 0);
+          this.prepareChart();
+          this.prepareLineChart();
+        },
+        error: (err) => {
+          console.error('Error fetching accounts:', err);
+        }
+      }
 
-    this.prepareChart(); // already exists
-    this.prepareLineChart(); // next
+    );
+
 
   }
 

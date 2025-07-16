@@ -1,6 +1,6 @@
 <div class="p-6 space-y-6">
   <h2 class="text-xl font-bold text-gray-800">
-    Transactions for {{ accountName }} ({{ cardNumber }})
+    Transactions for {{ accountName }} 
   </h2>
 
   <p-table
@@ -13,7 +13,6 @@
   >
     <ng-template pTemplate="header">
       <tr class="bg-gray-100 text-gray-700">
-        <th class="p-3 text-left">#</th>
         <th class="p-3 text-left">Type</th>
         <th class="p-3 text-right">Amount</th>
         <th class="p-3 text-left">Notes</th>
@@ -23,7 +22,7 @@
 
     <ng-template pTemplate="body" let-tx let-i="rowIndex">
       <tr class="hover:bg-gray-50 transition">
-        <td class="p-3 font-medium text-gray-800">{{ tx.transactionId }}</td>
+      
 
         <td class="p-3">
           <span

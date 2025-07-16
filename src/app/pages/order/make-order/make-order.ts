@@ -7,29 +7,37 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterModule,Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { OrderService } from '../../../services/order-service';
+import { Order } from '../../../models/Order';
+
 @Component({
   selector: 'app-make-order',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './make-order.html',
-  styleUrl: './make-order.css'
+  styleUrls: ['./make-order.css'],
 })
-export class MakeOrder {
- orderForm!: FormGroup;
+export class MakeOrder implements OnInit {
+  orderForm!: FormGroup;
 
-  constructor(private fb: FormBuilder,private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private orderService: OrderService
+  ) { }
 
   ngOnInit(): void {
     this.orderForm = this.fb.group({
       customerId: [null, Validators.required],
       couponCode: [''],
-      products: this.fb.array([this.createProductForm()]),
+      totalAmount: [100.00],
+      orderProducts: this.fb.array([this.createProductForm()]), // ✅ renamed
     });
   }
 
-  get products(): FormArray {
-    return this.orderForm.get('products') as FormArray;
+  get orderProducts(): FormArray {
+    return this.orderForm.get('orderProducts') as FormArray;
   }
 
   createProductForm(): FormGroup {
@@ -41,22 +49,29 @@ export class MakeOrder {
   }
 
   addProduct(): void {
-    this.products.push(this.createProductForm());
+    this.orderProducts.push(this.createProductForm());
   }
 
   removeProduct(index: number): void {
-    this.products.removeAt(index);
+    this.orderProducts.removeAt(index);
   }
 
   submitOrder(): void {
-    if (this.orderForm.valid) {
-      const order = this.orderForm.value;
-      console.log('Order Submitted:', order);
-      alert('✅ Order created (mocked)');
-      this.orderForm.reset();
-      this.router.navigate(['/orders/payment']);
-    } else {
+    if (this.orderForm.invalid) {
       this.orderForm.markAllAsTouched();
+      return;
     }
+
+    const order: Order = this.orderForm.value;
+
+    this.orderService.createOrder(order).subscribe({
+      next: createdOrder => {
+        console.log('Order placed:', createdOrder);
+        this.router.navigate(['/orders/payment']);
+      },
+      error: err => {
+        console.error('Failed to place order', err);
+      },
+    });
   }
 }
