@@ -1,5 +1,14 @@
 <nav class="bg-white shadow-md p-4 sticky top-0 z-50">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div class="flex items-center">
+      <a routerLink="/cart" class="relative text-2xl">
+        🛒
+        <span *ngIf="cartService.getItems().length"
+          class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+          {{ cartService.getItems().length }}
+        </span>
+      </a>
+    </div>
     <!-- Logo -->
     <div class="text-xl font-bold text-indigo-600">
       <i class="pi pi-credit-card mr-1"></i> Bank App
@@ -7,9 +16,6 @@
 
     <!-- Navigation Links -->
     <ul class="flex space-x-6 text-sm font-medium text-gray-700">
-      <li>
-        <a routerLink="/cart" class="px-3 py-2 hover:bg-gray-200 rounded">Cart</a>
-      </li>
       <li>
         <a routerLink="/products" routerLinkActive="active-link" class="px-3 py-2 hover:bg-gray-200 rounded">
           Products

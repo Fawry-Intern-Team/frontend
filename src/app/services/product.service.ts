@@ -18,6 +18,11 @@ export class ProductService {
   searchProducts(keyword: string): Observable<Product[]> {
     const params = new HttpParams().set('keyword', keyword);
     return this.http.get<Product[]>(`${this.apiUrl}/search`, { params });
-    }
-    
+  }
+
+  getSuggestions(partial: string) {
+    return this.http.get<string[]>(`${this.apiUrl}/suggestions`, {
+      params: { partial },
+    });
+  }
 }
