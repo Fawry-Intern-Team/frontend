@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
-import { Product } from '../../models/product';
+import { Product } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
 import { ProductCardComponent } from '../product-card/product-card.component';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, CurrencyPipe, ProductCardComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })
@@ -18,9 +18,7 @@ export class ProductsComponent implements OnInit {
 
   isLoading = true;
   searchKeyword: string = '';
-
   constructor(private productService: ProductService) {}
-
   ngOnInit() {
     this.fetchProducts();
   }
@@ -53,5 +51,4 @@ export class ProductsComponent implements OnInit {
       error: (err) => console.error(err),
     });
   }
-  
 }
