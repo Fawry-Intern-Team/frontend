@@ -6,11 +6,12 @@ import { Product } from '../../models/product.model';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { SliderModule } from 'primeng/slider';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent, SliderModule],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })
@@ -20,6 +21,11 @@ export class ProductsComponent implements OnInit {
   searchKeyword: string = '';
   suggestions: string[] = [];
   private searchTerms = new Subject<string>();
+  selectedCategory: string = '';
+  categories: string[] = ['Electronics', 'Books', 'Clothes', 'Home']; // Replace with your real categories
+
+  minPrice!: number;
+  maxPrice!: number;
 
   constructor(private productService: ProductService) {}
 
@@ -60,7 +66,6 @@ export class ProductsComponent implements OnInit {
       this.suggestions = [];
       this.fetchProducts(); // reload all products if search input is empty
     }
-
   }
 
   selectSuggestion(suggestion: string): void {
@@ -74,5 +79,43 @@ export class ProductsComponent implements OnInit {
       next: (data) => (this.products = data),
       error: (err) => console.error(err),
     });
+  }
+
+  filterByCategory() {
+    if (this.selectedCategory === '') {
+      this.fetchProducts(); // get all if no category selected
+    } else {
+      this.isLoading = true;
+      this.productService
+        .getProductsByCategory(this.selectedCategory)
+        .subscribe({
+          next: (data) => {
+            this.products = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error(err);
+            this.isLoading = false;
+          },
+        });
+    }
+  }
+
+  filterByPriceRange() {
+    if (this.minPrice != null && this.maxPrice != null) {
+      this.isLoading = true;
+      this.productService
+        .getProductsByPriceRange(this.minPrice, this.maxPrice)
+        .subscribe({
+          next: (data) => {
+            this.products = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error(err);
+            this.isLoading = false;
+          },
+        });
+    }
   }
 }

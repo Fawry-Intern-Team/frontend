@@ -25,4 +25,16 @@ export class ProductService {
       params: { partial },
     });
   }
+
+  getProductsByCategory(categoryName: string): Observable<Product[]> {
+    return this.http.get<Product[]>(
+      `/api/product/category?categoryName=${categoryName}`
+    );
+  }
+
+  getProductsByPriceRange(min: number, max: number): Observable<Product[]> {
+    return this.http.get<Product[]>(
+      `/api/product/price?minPrice=${min}&maxPrice=${max}`
+    );
+  }
 }
