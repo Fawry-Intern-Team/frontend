@@ -8,7 +8,7 @@ import { CartService } from '../../services/cart.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css',
+  styleUrls: ['./navbar.css'],
 })
 export class Navbar {
   constructor(public cartService: CartService) {}

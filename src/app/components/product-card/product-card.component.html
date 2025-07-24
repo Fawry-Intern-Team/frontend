@@ -1,11 +1,19 @@
-<div class="border rounded p-4 bg-white">
-    <img [src]="product.imageUrl" alt="{{ product.name }}" class="w-full h-48 object-cover mb-2 rounded">
-    <h2 class="text-lg font-semibold text-black">{{ product.name }}</h2>
-    <p class="text-gray-800">{{ product.description }}</p>
-    <p class="text-green-700 font-bold">{{ product.price | currency }}</p>
-    <p class="text-gray-500 text-sm">Category: {{ product.categoryName }}</p>
+<div
+    class="border rounded-2xl p-4 bg-white shadow hover:shadow-2xl hover:scale-105 transition-transform duration-300 flex flex-col transform">
+    <!-- Product Image -->
+    <img [src]="product.imageUrl" alt="{{ product.name }}" class="w-full h-48 object-cover mb-3 rounded-lg" />
 
-    <button (click)="addToCart()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+    <!-- Product Info -->
+    <div class="flex-1">
+        <h2 class="text-xl font-semibold text-gray-800 mb-1">{{ product.name }}</h2>
+        <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ product.description }}</p>
+        <p class="text-green-600 font-bold text-lg mb-2">{{ product.price | currency }}</p>
+        <p class="text-gray-500 text-xs">Category: {{ product.categoryName }}</p>
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button (click)="addToCart()"
+        class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors duration-300">
         Add to Cart
     </button>
 </div>

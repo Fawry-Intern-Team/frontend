@@ -28,3 +28,22 @@
     /* لون داكن عند الـ hover */
 }
 
+.pagination button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+}
+
+.pagination button:hover {
+    background-color: #3b82f6;
+    /* Tailwind blue-500 */
+    color: white;
+}
+
+.pagination button:disabled {
+    background-color: #ddd;
+    color: #999;
+}
+

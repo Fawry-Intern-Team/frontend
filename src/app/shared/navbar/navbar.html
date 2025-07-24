@@ -1,24 +1,31 @@
-<nav class="bg-white shadow-md p-4 sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto flex items-center justify-between">
-    <div class="flex items-center">
-      <a routerLink="/cart" class="relative text-2xl">
-        🛒
-        <span *ngIf="cartService.getItems().length"
-          class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-          {{ cartService.getItems().length }}
-        </span>
-      </a>
-    </div>
-   
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
 
-    <!-- Navigation Links -->
-    <ul class="flex space-x-6 text-sm font-medium text-gray-700">
+      <!-- Logo / Brand -->
+      <div class="flex-shrink-0">
+        <a routerLink="/" class="text-2xl font-bold text-blue-600">E-Commerce</a>
+      </div>
 
-      <li>
-        <a routerLink="/products" routerLinkActive="active-link" class="hover:text-gray-900 transition duration-200">
+      <!-- Navigation Links -->
+      <div class="hidden md:flex space-x-8">
+        <a routerLink="/products" routerLinkActive="active-link"
+          class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
           Products
         </a>
-      </li>
-    </ul>
+      
+      </div>
+
+      <!-- Cart Icon -->
+      <div class="ml-4 flex items-center">
+        <a routerLink="/cart" class="relative text-2xl">
+          🛒
+          <span *ngIf="cartService.getItems().length"
+            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+            {{ cartService.getItems().length }}
+          </span>
+        </a>
+      </div>
+    </div>
   </div>
 </nav>

@@ -18,14 +18,20 @@ import { SliderModule } from 'primeng/slider';
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
   isLoading = true;
+
   searchKeyword: string = '';
   suggestions: string[] = [];
   private searchTerms = new Subject<string>();
+
   selectedCategory: string = '';
-  categories: string[] = ['Electronics', 'Books', 'Clothes', 'Home']; // Replace with your real categories
+  categories: string[] = [];
 
   minPrice!: number;
   maxPrice!: number;
+
+  currentPage: number = 0;
+  totalPages: number = 0;
+  pageSize: number = 10;
 
   constructor(private productService: ProductService) {}
 
@@ -33,7 +39,6 @@ export class ProductsComponent implements OnInit {
     this.fetchProducts();
     this.loadCategories();
 
-    // suggestions observable
     this.searchTerms
       .pipe(
         debounceTime(300),
@@ -54,10 +59,14 @@ export class ProductsComponent implements OnInit {
       error: (err) => console.error(err),
     });
   }
-  fetchProducts() {
-    this.productService.getAllProducts().subscribe({
-      next: (data) => {
-        this.products = data;
+
+  fetchProducts(page: number = 0) {
+    this.isLoading = true;
+    this.productService.getAllProductsPaginated(page, this.pageSize).subscribe({
+      next: (response) => {
+        this.products = response.content;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.pageNumber;
         this.isLoading = false;
       },
       error: (err) => {
@@ -84,22 +93,29 @@ export class ProductsComponent implements OnInit {
   }
 
   search(): void {
+    this.isLoading = true;
     this.productService.searchProducts(this.searchKeyword).subscribe({
-      next: (data) => (this.products = data),
-      error: (err) => console.error(err),
+      next: (data) => {
+        this.products = data.content; // ⬅️ تعديل: استخدام content من PaginatedResponseDto
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
+      },
     });
   }
 
   filterByCategory() {
     if (this.selectedCategory === '') {
-      this.fetchProducts(); // كل المنتجات لو مفيش اختيار
+      this.fetchProducts(); // load all products if no category selected
     } else {
       this.isLoading = true;
       this.productService
         .getProductsByCategory(this.selectedCategory)
         .subscribe({
           next: (data) => {
-            this.products = data;
+            this.products = data.content; // ⬅️ تعديل: استخدام content من PaginatedResponseDto
             this.isLoading = false;
           },
           error: (err) => {
@@ -111,13 +127,15 @@ export class ProductsComponent implements OnInit {
   }
 
   filterByPriceRange() {
-    if (this.minPrice != null && this.maxPrice != null) {
+    if (this.minPrice == null && this.maxPrice == null) {
+      this.fetchProducts(); // load all products if price range not set
+    } else {
       this.isLoading = true;
       this.productService
         .getProductsByPriceRange(this.minPrice, this.maxPrice)
         .subscribe({
           next: (data) => {
-            this.products = data;
+            this.products = data.content; // ⬅️ تعديل: استخدام content من PaginatedResponseDto
             this.isLoading = false;
           },
           error: (err) => {

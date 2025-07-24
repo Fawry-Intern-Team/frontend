@@ -2,16 +2,16 @@
   <!-- Search Bar Centered -->
   <div class="flex justify-center my-6">
     <div
-      class="relative flex items-center border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2 shadow-md hover:shadow-lg transition-shadow duration-300">
-
+      class="relative flex items-center border border-gray-300 hover:border-2 hover:border-blue-500 rounded-lg px-4 py-2 w-full md:w-1/2 shadow-md hover:shadow-lg transition-all duration-300">
+    
       <input [(ngModel)]="searchKeyword" (ngModelChange)="onSearchChange($event)" placeholder="Search products..."
         class="flex-grow bg-white text-black placeholder-gray-500 focus:outline-none px-2 py-2 text-lg rounded" />
-
-    <button (click)="search()"
-      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg ml-2 transition-colors duration-300">
-      Search
-    </button>
-
+    
+      <button (click)="search()"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg ml-2 transition-colors duration-300">
+        Search
+      </button>
+    
       <!-- Suggestions dropdown -->
       <ul *ngIf="suggestions.length" class="absolute top-full left-0 bg-white border w-full mt-1 rounded shadow z-10">
         <li *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)"
@@ -20,6 +20,7 @@
         </li>
       </ul>
     </div>
+
   </div>
 
   <!-- Loading Indicator -->
@@ -64,4 +65,14 @@
     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
     <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
   </div>
+  
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="flex justify-center mt-6">
+    <button *ngFor="let pageNum of [].constructor(totalPages); let i = index" (click)="fetchProducts(i)"
+      [disabled]="i === currentPage"
+      class="mx-1 px-3 py-2 rounded border border-gray-300 hover:bg-blue-500 hover:text-white disabled:bg-gray-300 disabled:text-gray-500">
+      {{ i + 1 }}
+    </button>
+  </div>
+
 </div>
