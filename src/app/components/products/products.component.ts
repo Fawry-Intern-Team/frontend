@@ -31,6 +31,7 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit() {
     this.fetchProducts();
+    this.loadCategories();
 
     // suggestions observable
     this.searchTerms
@@ -45,6 +46,14 @@ export class ProductsComponent implements OnInit {
       });
   }
 
+  loadCategories() {
+    this.productService.getAllCategories().subscribe({
+      next: (cats) => {
+        this.categories = cats.map((cat) => cat.name);
+      },
+      error: (err) => console.error(err),
+    });
+  }
   fetchProducts() {
     this.productService.getAllProducts().subscribe({
       next: (data) => {
@@ -83,7 +92,7 @@ export class ProductsComponent implements OnInit {
 
   filterByCategory() {
     if (this.selectedCategory === '') {
-      this.fetchProducts(); // get all if no category selected
+      this.fetchProducts(); // كل المنتجات لو مفيش اختيار
     } else {
       this.isLoading = true;
       this.productService

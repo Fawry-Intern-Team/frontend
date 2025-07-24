@@ -7,34 +7,42 @@ import { Product } from '../models/product.model';
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:8081/product'; // ✅ endpoint الصحيح
+  private apiUrlProduct = 'http://localhost:8081/product';
+  private apiUrlCategory = 'http://localhost:8081/category';
 
   constructor(private http: HttpClient) {}
 
   getAllProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}`); // ✅ راجع ال path الصحيح في الباك اند
+    return this.http.get<Product[]>(`${this.apiUrlProduct}`);
   }
 
   searchProducts(keyword: string): Observable<Product[]> {
     const params = new HttpParams().set('keyword', keyword);
-    return this.http.get<Product[]>(`${this.apiUrl}/search`, { params });
+    return this.http.get<Product[]>(`${this.apiUrlProduct}/search`, { params });
   }
 
   getSuggestions(partial: string) {
-    return this.http.get<string[]>(`${this.apiUrl}/suggestions`, {
+    return this.http.get<string[]>(`${this.apiUrlProduct}/suggestions`, {
       params: { partial },
     });
   }
 
   getProductsByCategory(categoryName: string): Observable<Product[]> {
-    return this.http.get<Product[]>(
-      `/api/product/category?categoryName=${categoryName}`
-    );
+    const params = new HttpParams().set('categoryName', categoryName);
+    return this.http.get<Product[]>(`${this.apiUrlProduct}/category`, {
+      params,
+    });
   }
 
   getProductsByPriceRange(min: number, max: number): Observable<Product[]> {
-    return this.http.get<Product[]>(
-      `/api/product/price?minPrice=${min}&maxPrice=${max}`
-    );
+    const params = new HttpParams().set('minPrice', min).set('maxPrice', max);
+
+    return this.http.get<Product[]>(`${this.apiUrlProduct}/price`, {
+      params,
+    });
+  }
+
+  getAllCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrlCategory}`);
   }
 }
