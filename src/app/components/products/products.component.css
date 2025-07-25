@@ -47,3 +47,8 @@
     color: #999;
 }
 
+button.active {
+    background-color: #2563eb;
+    /* blue-600 */
+    color: white;
+}

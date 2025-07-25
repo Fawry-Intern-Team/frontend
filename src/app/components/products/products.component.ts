@@ -33,6 +33,43 @@ export class ProductsComponent implements OnInit {
   totalPages: number = 0;
   pageSize: number = 10;
 
+  sortBy: string = 'name';
+  sortDirection: string = 'asc';
+
+  loadSortedProducts() {
+    this.isLoading = true;
+    this.productService
+      .getAllProductsSorted(
+        this.sortBy,
+        this.sortDirection,
+        this.currentPage,
+        this.pageSize
+      )
+      .subscribe({
+        next: (response) => {
+          this.products = response.content;
+          this.totalPages = response.totalPages;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
+        },
+      });
+  }
+
+  changeSort(sortBy: string, sortDirection: string) {
+    this.sortBy = sortBy;
+    this.sortDirection = sortDirection;
+    this.currentPage = 0; // reset page when sorting changes
+    this.loadSortedProducts();
+  }
+
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.loadSortedProducts();
+  }
+
   constructor(private productService: ProductService) {}
 
   ngOnInit() {

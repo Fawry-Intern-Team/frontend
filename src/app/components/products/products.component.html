@@ -44,7 +44,20 @@
       </option>
     </select>
   </div>
-
+  
+  <!-- Sort Controls -->
+  <div class="flex items-center gap-2">
+    <select [(ngModel)]="sortBy" (change)="changeSort(sortBy, sortDirection)" class="border px-3 py-2 rounded focus:outline-none">
+      <option value="name">Name</option>
+      <option value="price">Price</option>
+      <option value="createdAt">Date Added</option>
+    </select>
+  
+    <select [(ngModel)]="sortDirection" (change)="changeSort(sortBy, sortDirection)" class="border rounded px-3 py-2">
+      <option value="asc">Ascending</option>
+      <option value="desc">Descending</option>
+    </select>
+  </div>
   <!-- Price Range Filter -->
   <div class="flex items-center gap-2">
     <span class="text-2xl">💰</span>
@@ -56,9 +69,7 @@
       Filter
     </button>
   </div>
-
-
-</div>
+  </div>
 
   <!-- Products Grid -->
   <div *ngIf="!isLoading && products.length > 0"

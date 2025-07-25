@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
+import { PaginatedResponse } from '../models/response.model';
 
 interface PaginatedResponseDto<T> {
   content: T[];
@@ -74,4 +75,15 @@ export class ProductService {
   getAllCategories(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrlCategory}`);
   }
+
+  getAllProductsSorted(sortBy: string, sortDirection: string, page: number, size: number) {
+  const params = {
+    sortBy,
+    sortDirection,
+    page,
+    size
+  };
+  return this.http.get<PaginatedResponse<Product>>(`${this.apiUrlProduct}/sort`, { params });
+}
+
 }
