@@ -32,9 +32,8 @@ export class ProductsComponent implements OnInit {
   currentPage: number = 0;
   totalPages: number = 0;
   pageSize: number = 10;
-
-  sortBy: string = 'name';
-  sortDirection: string = 'asc';
+  sortBy: string = '';
+  sortDirection: string = '';
 
   loadSortedProducts() {
     this.isLoading = true;
