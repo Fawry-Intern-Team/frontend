@@ -15,6 +15,7 @@ import { CartComponent } from './components/cart/cart.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {path: 'products', component: ProductsComponent },
   { path: 'login', component:Login },
   { path: 'user/dashboard', component: UserDashboard },
   { path: 'admin/dashboard', component: AdminDashboard },
