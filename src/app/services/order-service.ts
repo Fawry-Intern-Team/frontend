@@ -1,37 +1,28 @@
-
+// services/order.service.ts
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order } from '../models/Order';
 
+export interface OrderProduct {
+  productId: string;
+  storeId: string;
+  quantity: number;
+}
+
+export interface OrderRequest {
+  idempotencyKey: string | null;
+  customerId: string;
+  totalAmount: number;
+  couponCode?: string;
+  orderProducts: OrderProduct[];
+}
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private baseUrl = 'http://localhost:8083/api/v1/orders';
+  private readonly baseUrl = 'http://localhost:8083/api/v1/orders';
   constructor(private http: HttpClient) { }
-
-  getPaginatedOrders(page: number, size: number) {
-    return this.http.get<any>(`${this.baseUrl}?page=${page}&size=${size}`);
-  }
-
-
-  getOrderById(id: string): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/${id}`);
-  }
-
-
-  createOrder(order: Order): Observable<Order> {
-    return this.http.post<Order>(this.baseUrl, order);
-  }
-
-
-  updateOrder(order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.baseUrl}/${order.id}`, order);
-  }
-
-
-  deleteOrder(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  createOrder(order: OrderRequest): Observable<any> {
+    return this.http.post(this.baseUrl, order);
   }
 }
