@@ -1,0 +1,79 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+    background-color: #f4f6f8;
+    .keep-logged-in-checkbox label {
+        font-size: 0.8rem; // smaller text
+    }
+    .switch-link {
+        font-size: 0.9rem;
+    }
+    ::ng-deep input::placeholder,
+    ::ng-deep .p-password-input::placeholder {
+      color: #6c757d !important;
+    }
+    
+    ::ng-deep input.p-invalid::placeholder,
+    ::ng-deep .p-password-input.p-invalid::placeholder {
+      color: #6c757d !important;
+    }
+    
+    p-card {
+      width: 100%;
+      max-width: 420px;
+  
+      .form-header {
+        text-align: center;
+        margin-bottom: 1rem;
+  
+        h2 {
+          color: #2563eb;
+          font-weight: 600;
+        }
+      }
+  
+      .login-links {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+  
+        a {
+          margin-left: 5px;
+          color: #2563eb;
+          text-decoration: none;
+        }
+      }
+  
+      .divider-with-text {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.5rem 0;
+  
+        &::before,
+        &::after {
+          content: '';
+          flex: 1;
+          border-bottom: 1px solid #ccc;
+        }
+  
+        span {
+          margin: 0 10px;
+          color: #999;
+          font-size: 0.8rem;
+        }
+      }
+  
+      .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+  
+        .google-icon {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  } 
