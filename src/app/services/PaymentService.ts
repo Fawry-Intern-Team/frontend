@@ -10,6 +10,7 @@ export interface InitiateTransactionRequest {
 }
 export interface InitiateTransactionResponse {
   transactionId: string;
+  message: string;
 }
 export interface ConfirmTransactionRequest {
   transactionId: string | null;

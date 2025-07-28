@@ -2,20 +2,24 @@ import { Component } from '@angular/core';
 import { OrderService, OrderProduct, OrderRequest } from '../../services/order-service';
 import { v4 as uuidv4 } from 'uuid';
 import { Router } from '@angular/router';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-place-order',
-  imports: [],
+  imports: [ToastModule],
+  providers: [MessageService],
+  standalone: true,
   templateUrl: './place-order.html',
   styleUrl: './place-order.css'
 })
 export class PlaceOrder {
-  constructor(private orderService: OrderService,private router:Router) { }
+  constructor(private orderService: OrderService,private router:Router,private messageService: MessageService) { }
 
   placeOrder() {
     const orderProducts: OrderProduct[] = [
       {
-        productId: '11111111-1111-1111-1111-111111111111',
-        storeId: '22222222-2222-2222-2222-222222222222',
+        productId: 'c0c1ccc7-cf1a-4aeb-a5b9-cd14df4d067c',
+        storeId: '085ce62f-82c2-4266-9020-476ebaf2f884',
         quantity: 2
       }
     ];
@@ -33,11 +37,14 @@ export class PlaceOrder {
    
     this.orderService.createOrder(order).subscribe({
       next: (res) => {
-        console.log('✅ Order Created', res);
-        this.router.navigate(['/payment']);
+        localStorage.setItem('orderId', res.id);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order placed successfully!' });
+        setTimeout(() => {  
+          this.router.navigate(['/order-summary']);
+        }, 2000);
       },
       error: (err) => {
-        console.error('❌ Error creating order', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error });
       }
     });
   }
