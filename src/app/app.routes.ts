@@ -8,31 +8,33 @@ import { PlaceOrder } from './pages/place-order/place-order';
 import { Payment } from './pages/payment/payment';
 import { Otp } from './pages/otp/otp';
 import { OrderSummary } from './pages/order-summary/order-summary';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
 
 export const routes: Routes = [
   {
     path: 'place-order',
-    component: PlaceOrder
+    component: PlaceOrder,
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  {path: 'products', component: ProductsComponent },
+  { path: 'products', component: ProductsComponent },
 
   { path: 'cart', component: CartComponent },
- 
+
   { path: 'orders/payment', component: Payment },
 
   {
     path: 'otp',
-    component: Otp
+    component: Otp,
   },
   {
     path: 'order-summary',
-    component: OrderSummary
+    component: OrderSummary,
   },
+  { path: 'store/admin', component: AdminDashboardComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

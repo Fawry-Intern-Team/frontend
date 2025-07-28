@@ -1,0 +1,558 @@
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Search Bar for Stocks -->
+<p-card class="rounded-2xl shadow-md p-4 bg-white text-gray-800 mb-6 search-section">
+    <div class="flex items-center gap-3 mb-4">
+        <i class="pi pi-search text-white text-xl"></i>
+        <h3 class="text-xl font-semibold text-white mb-0">Search Stocks by Store Location</h3>
+    </div>
+    
+    <div class="flex flex-col md:flex-row items-center gap-4">
+        <!-- Search Input -->
+        <div class="w-full md:w-2/3">
+            <p-floatLabel>
+                <input id="searchLocation" 
+                       type="text" 
+                       pInputText 
+                       [(ngModel)]="searchKeyword" 
+                       (keyup.enter)="searchStocksByLocation()"
+                       [disabled]="isLoadingStocks"
+                       autocomplete="off"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800" />
+                <label for="searchLocation" class="text-white">Store Location</label>
+            </p-floatLabel>
+        </div>
+
+        <!-- Search Button -->
+        <p-button label="Search Stocks" 
+                  icon="pi pi-search" 
+                  (click)="searchStocksByLocation()"
+                  [disabled]="!searchKeyword.trim() || isLoadingStocks"
+                  [loading]="isLoadingStocks"
+                  class="p-button-primary"></p-button>
+        
+        <!-- Hide Stocks Button -->
+        <p-button *ngIf="showStocks" 
+                  label="Hide Stocks" 
+                  icon="pi pi-times" 
+                  (click)="hideStocks()"
+                  class="p-button-secondary"></p-button>
+    </div>
+</p-card>
+
+<!-- Stock Results -->
+<p-card *ngIf="showStocks" class="rounded-2xl shadow-md p-4 bg-white text-gray-800 mb-6 stock-results">
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-3">
+            <i class="pi pi-box text-blue-600 text-xl"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-0">
+                Stocks for Location: "{{ searchedLocation }}"
+            </h3>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">{{ stocks.length }} item(s) found</span>
+            <span *ngIf="isLoadingStocks" class="pi pi-spin pi-spinner text-blue-600"></span>
+            <p-button label="Add Stock" 
+                      icon="pi pi-plus" 
+                      (click)="openAddStockDialog()"
+                      [disabled]="!selectedStoreForStock"
+                      size="small"
+                      class="p-button-success"></p-button>
+        </div>
+    </div>
+    
+    <p-table [value]="stocks" 
+             [tableStyle]="{ 'min-width': '100%' }"
+             [loading]="isLoadingStocks"
+             class="shadow-sm rounded-md border border-gray-200 bg-white">
+        <ng-template pTemplate="header">
+            <tr class="bg-gray-100 text-sm">
+                <th class="px-4 py-2">Stock ID</th>
+                <th class="px-4 py-2">Store ID</th>
+                <th class="px-4 py-2">Product ID</th>
+                <th class="px-4 py-2">Quantity</th>
+                <th class="px-4 py-2">Status</th>
+                <th class="px-4 py-2">Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-stock>
+            <tr class="hover:bg-gray-50 text-gray-800">
+                <td class="px-4 py-2 font-medium">
+                    <span class="font-mono text-sm">{{ stock.id }}</span>
+                </td>
+                <td class="px-4 py-2">
+                    <span class="font-mono text-sm">{{ stock.storeId }}</span>
+                </td>
+                <td class="px-4 py-2">
+                    <span class="font-mono text-sm">{{ stock.productId }}</span>
+                </td>
+                <td class="px-4 py-2">
+                    <span [class]="stock.quantity > 0 ? 'quantity-positive' : 'quantity-zero'">
+                        {{ stock.quantity }}
+                    </span>
+                </td>
+                <td class="px-4 py-2">
+                    <span [class]="getStockStatusClass(stock.quantity)">
+                        {{ getStockStatus(stock.quantity) }}
+                    </span>
+                </td>
+                <td class="px-4 py-2">
+                    <div class="flex items-center gap-2">
+                        <p-button icon="pi pi-history" 
+                                  [text]="true" 
+                                  size="small"
+                                  (click)="viewStockHistory(stock)"
+                                  pTooltip="View stock history"
+                                  tooltipPosition="top"
+                                  class="p-button-primary action-button"></p-button>
+                        
+                        <p-button icon="pi pi-plus" 
+                                  [text]="true" 
+                                  size="small"
+                                  (click)="openAddStockDialog(stock)"
+                                  pTooltip="Add stock"
+                                  tooltipPosition="top"
+                                  class="p-button-success action-button"></p-button>
+                        
+                        <p-button icon="pi pi-minus" 
+                                  [text]="true" 
+                                  size="small"
+                                  (click)="openConsumeStockDialog(stock)"
+                                  pTooltip="Consume stock"
+                                  tooltipPosition="top"
+                                  [disabled]="stock.quantity === 0"
+                                  class="p-button-danger action-button"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6" class="text-center text-gray-400 py-8">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="pi pi-inbox text-4xl text-gray-300"></i>
+                        <span class="text-lg">No stocks found for this location</span>
+                        <span class="text-sm text-gray-400">Try searching for a different store location</span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+<!-- Stock History Results -->
+<p-card *ngIf="showStockHistory" class="rounded-2xl shadow-md p-4 bg-white text-gray-800 mb-6 stock-results">
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-3">
+            <i class="pi pi-history text-purple-600 text-xl"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-0">
+                Stock History for Product: {{ selectedStock?.productId }}
+            </h3>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">{{ stockHistory.length }} record(s) found</span>
+            <span *ngIf="isLoadingHistory" class="pi pi-spin pi-spinner text-purple-600"></span>
+            <p-button icon="pi pi-times" 
+                      [text]="true" 
+                      size="small"
+                      (click)="hideStockHistory()"
+                      pTooltip="Close history"
+                      tooltipPosition="top"
+                      class="p-button-secondary"></p-button>
+        </div>
+    </div>
+    
+    <p-table [value]="stockHistory" 
+             [tableStyle]="{ 'min-width': '100%' }"
+             [loading]="isLoadingHistory"
+             class="shadow-sm rounded-md border border-gray-200 bg-white">
+        <ng-template pTemplate="header">
+            <tr class="bg-purple-100 text-sm">
+                <th class="px-4 py-2">Date & Time</th>
+                <th class="px-4 py-2">Quantity Change</th>
+                <th class="px-4 py-2">Reason</th>
+                <th class="px-4 py-2">Store ID</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-history>
+            <tr class="hover:bg-gray-50 text-gray-800">
+                <td class="px-4 py-2">
+                    <div class="flex items-center gap-2">
+                        <i class="pi pi-calendar text-gray-400"></i>
+                        <span class="text-sm">{{ formatDateTime(history.timestamp) }}</span>
+                    </div>
+                </td>
+                <td class="px-4 py-2">
+                    <div class="flex items-center gap-2">
+                        <i [class]="getQuantityChangeIcon(history.quantityChange)" 
+                           [class.text-green-600]="history.quantityChange > 0"
+                           [class.text-red-600]="history.quantityChange < 0"
+                           [class.text-gray-600]="history.quantityChange === 0"></i>
+                        <span [class]="getQuantityChangeClass(history.quantityChange)">
+                            {{ history.quantityChange > 0 ? '+' : '' }}{{ history.quantityChange }}
+                        </span>
+                    </div>
+                </td>
+                <td class="px-4 py-2">
+                    <span class="px-2 py-1 bg-gray-100 rounded-full text-sm">
+                        {{ history.reason || 'No reason provided' }}
+                    </span>
+                </td>
+                <td class="px-4 py-2">
+                    <span class="font-mono text-sm text-gray-600">{{ history.storeId }}</span>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="4" class="text-center text-gray-400 py-8">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="pi pi-history text-4xl text-gray-300"></i>
+                        <span class="text-lg">No history records found</span>
+                        <span class="text-sm text-gray-400">This stock item has no recorded changes</span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+<!-- Stores Table -->
+<p-card class="rounded-2xl shadow-md p-4 bg-white text-gray-800">
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-3">
+            <i class="pi pi-building text-blue-600 text-xl"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-0">All Stores</h3>
+            <span *ngIf="isLoadingStores" class="pi pi-spin pi-spinner text-blue-600"></span>
+        </div>
+        <p-button label="Create Stock" 
+                  icon="pi pi-plus-circle" 
+                  (click)="openCreateStockDialog()"
+                  size="small"
+                  class="p-button-info"></p-button>
+    </div>
+    
+    <!-- Table -->
+    <p-table [value]="stores" 
+             [tableStyle]="{ 'min-width': '100%' }"
+             [loading]="isLoadingStores"
+             class="shadow-sm rounded-md border border-gray-200 bg-white text-gray-800">
+        <ng-template pTemplate="header">
+            <tr class="bg-gray-100 text-sm">
+                <th class="px-4 py-2">ID</th>
+                <th class="px-4 py-2">Location</th>
+                <th class="px-4 py-2">Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-store>
+            <tr class="hover:bg-gray-50 text-gray-800">
+                <td class="px-4 py-2 font-medium">
+                    <span class="font-mono text-sm">{{ store.id }}</span>
+                </td>
+                <td class="px-4 py-2 font-semibold">{{ store.location }}</td>
+                <td class="px-4 py-2">
+                    <p-button icon="pi pi-search" 
+                              [text]="true" 
+                              size="small"
+                              (click)="searchKeyword = store.location; searchStocksByLocation()"
+                              pTooltip="View stocks for this store"
+                              tooltipPosition="top"></p-button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3" class="text-center text-gray-400 py-8">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="pi pi-building text-4xl text-gray-300"></i>
+                        <span class="text-lg">No stores found</span>
+                        <span class="text-sm text-gray-400">Create your first store below</span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Create Store Form -->
+    <div class="mt-6 border-t pt-6">
+        <div class="flex items-center gap-3 mb-4">
+            <i class="pi pi-plus-circle text-green-600 text-xl"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-0">Add New Store</h3>
+        </div>
+
+        <div class="flex flex-col md:flex-row items-center gap-4">
+            <!-- Location Input -->
+            <div class="w-full md:w-2/3">
+                <p-floatLabel>
+                    <input id="location" 
+                           type="text" 
+                           pInputText 
+                           [(ngModel)]="newStore.location" 
+                           [disabled]="isCreatingStore"
+                           autocomplete="off"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800" />
+                    <label for="location">Store Location</label>
+                </p-floatLabel>
+            </div>
+
+            <!-- Submit Button -->
+            <p-button label="Create Store" 
+                      icon="pi pi-plus" 
+                      (click)="createStore()"
+                      [disabled]="!newStore.location.trim() || isCreatingStore"
+                      [loading]="isCreatingStore"
+                      class="p-button-success"></p-button>
+        </div>
+    </div>
+</p-card>
+
+<!-- Add Stock Dialog -->
+<p-dialog header="Add Stock" 
+          [(visible)]="showAddStockDialog" 
+          [modal]="true" 
+          [closable]="true"
+          [draggable]="false"
+          [resizable]="false"
+          styleClass="w-full max-w-md">
+    
+    <div class="space-y-6 p-2">
+        <!-- Store Selection -->
+        <div class="space-y-2">
+            <label for="addStoreSelect" class="block text-sm font-medium text-gray-700">Store</label>
+            <select id="addStoreSelect" 
+                    [(ngModel)]="addStockForm.storeId"
+                    [disabled]="isAddingStock"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900">
+                <option value="">Select a store</option>
+                <option *ngFor="let store of stores" [value]="store.id">{{ store.location }}</option>
+            </select>
+        </div>
+
+        <!-- Product ID -->
+        <div class="space-y-2">
+            <label for="addProductId" class="block text-sm font-medium text-gray-700">Product ID</label>
+            <input id="addProductId" 
+                   type="text" 
+                   [(ngModel)]="addStockForm.productId"
+                   [disabled]="isAddingStock"
+                   placeholder="Enter product ID"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500">
+        </div>
+
+        <!-- Quantity -->
+        <div class="space-y-2">
+            <label for="addQuantity" class="block text-sm font-medium text-gray-700">Quantity to Add</label>
+            <input id="addQuantity" 
+                   type="number" 
+                   [(ngModel)]="addStockForm.quantity"
+                   [disabled]="isAddingStock"
+                   min="1"
+                   placeholder="Enter quantity"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500">
+        </div>
+
+        <!-- Reason -->
+        <div class="space-y-2">
+            <label for="addReason" class="block text-sm font-medium text-gray-700">Reason (Optional)</label>
+            <textarea id="addReason" 
+                      [(ngModel)]="addStockForm.reason"
+                      [disabled]="isAddingStock"
+                      rows="2"
+                      placeholder="Enter reason for adding stock"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 resize-none"></textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-3">
+            <p-button label="Cancel" 
+                      icon="pi pi-times" 
+                      (click)="closeAddStockDialog()"
+                      [disabled]="isAddingStock"
+                      class="p-button-text"></p-button>
+            <p-button label="Add Stock" 
+                      icon="pi pi-plus" 
+                      (click)="addStock()"
+                      [disabled]="!addStockForm.storeId || !addStockForm.productId || addStockForm.quantity <= 0 || isAddingStock"
+                      [loading]="isAddingStock"
+                      class="p-button-success"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Consume Stock Dialog -->
+<p-dialog header="Consume Stock" 
+          [(visible)]="showConsumeStockDialog" 
+          [modal]="true" 
+          [closable]="true"
+          [draggable]="false"
+          [resizable]="false"
+          styleClass="w-full max-w-md">
+    
+    <div class="space-y-6 p-2">
+        <!-- Current Stock Info -->
+        <div *ngIf="selectedStock" class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h4 class="text-sm font-semibold text-blue-800 mb-2">Current Stock Information</h4>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="text-gray-600">Product ID:</div>
+                <div class="font-mono text-gray-800">{{ selectedStock.productId }}</div>
+                <div class="text-gray-600">Available:</div>
+                <div class="font-semibold text-green-600">{{ selectedStock.quantity }} units</div>
+            </div>
+        </div>
+
+        <!-- Store (Read-only) -->
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Store</label>
+            <input type="text" 
+                   [value]="getStoreLocationById(consumeStockForm.storeId)"
+                   disabled
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+        </div>
+
+        <!-- Product ID (Read-only) -->
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Product ID</label>
+            <input type="text" 
+                   [value]="consumeStockForm.productId"
+                   disabled
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 font-mono">
+        </div>
+
+        <!-- Quantity -->
+        <div class="space-y-2">
+            <label for="consumeQuantity" class="block text-sm font-medium text-gray-700">Quantity to Consume</label>
+            <input id="consumeQuantity" 
+                   type="number" 
+                   [(ngModel)]="consumeStockForm.quantity"
+                   [disabled]="isConsumingStock"
+                   [max]="selectedStock?.quantity || 0"
+                   min="1"
+                   placeholder="Enter quantity"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 placeholder-gray-500">
+            <div *ngIf="selectedStock && consumeStockForm.quantity > selectedStock.quantity" 
+                 class="text-sm text-red-600 mt-1">
+                Cannot exceed available stock ({{ selectedStock.quantity }} units)
+            </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="space-y-2">
+            <label for="consumeReason" class="block text-sm font-medium text-gray-700">Reason (Optional)</label>
+            <textarea id="consumeReason" 
+                      [(ngModel)]="consumeStockForm.reason"
+                      [disabled]="isConsumingStock"
+                      rows="2"
+                      placeholder="Enter reason for consuming stock"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white text-gray-900 placeholder-gray-500 resize-none"></textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-3">
+            <p-button label="Cancel" 
+                      icon="pi pi-times" 
+                      (click)="closeConsumeStockDialog()"
+                      [disabled]="isConsumingStock"
+                      class="p-button-text"></p-button>
+            <p-button label="Consume Stock" 
+                      icon="pi pi-minus" 
+                      (click)="consumeStock()"
+                      [disabled]="!consumeStockForm.storeId || !consumeStockForm.productId || consumeStockForm.quantity <= 0 || (selectedStock && consumeStockForm.quantity > selectedStock.quantity) || isConsumingStock"
+                      [loading]="isConsumingStock"
+                      class="p-button-danger"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Create Stock Dialog -->
+<p-dialog header="Create New Stock" 
+          [(visible)]="showCreateStockDialog" 
+          [modal]="true" 
+          [closable]="true"
+          [draggable]="false"
+          [resizable]="false"
+          styleClass="w-full max-w-md">
+    
+    <div class="space-y-6 p-2">
+        <!-- Info Banner -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <div class="flex items-start gap-3">
+                <i class="pi pi-info-circle text-blue-600 text-lg mt-0.5"></i>
+                <div>
+                    <h4 class="text-sm font-semibold text-blue-800 mb-1">Create New Stock</h4>
+                    <p class="text-sm text-blue-700">This will create a new stock entry for a product in a specific store. Use this when adding a product to a store for the first time.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store Selection -->
+        <div class="space-y-2">
+            <label for="createStoreSelect" class="block text-sm font-medium text-gray-700">Store *</label>
+            <select id="createStoreSelect" 
+                    [(ngModel)]="createStockForm.storeId"
+                    [disabled]="isCreatingStock"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900">
+                <option value="">Select a store</option>
+                <option *ngFor="let store of stores" [value]="store.id">{{ store.location }}</option>
+            </select>
+        </div>
+
+        <!-- Product ID -->
+        <div class="space-y-2">
+            <label for="createProductId" class="block text-sm font-medium text-gray-700">Product ID *</label>
+            <input id="createProductId" 
+                   type="text" 
+                   [(ngModel)]="createStockForm.productId"
+                   [disabled]="isCreatingStock"
+                   placeholder="Enter product ID"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500">
+        </div>
+
+        <!-- Initial Quantity -->
+        <div class="space-y-2">
+            <label for="createQuantity" class="block text-sm font-medium text-gray-700">Initial Quantity *</label>
+            <input id="createQuantity" 
+                   type="number" 
+                   [(ngModel)]="createStockForm.quantity"
+                   [disabled]="isCreatingStock"
+                   min="0"
+                   placeholder="Enter initial quantity"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500">
+        </div>
+
+        <!-- Reason -->
+        <div class="space-y-2">
+            <label for="createReason" class="block text-sm font-medium text-gray-700">Reason (Optional)</label>
+            <textarea id="createReason" 
+                      [(ngModel)]="createStockForm.reason"
+                      [disabled]="isCreatingStock"
+                      rows="2"
+                      placeholder="Enter reason for creating this stock"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 resize-none"></textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-3">
+            <p-button label="Cancel" 
+                      icon="pi pi-times" 
+                      (click)="closeCreateStockDialog()"
+                      [disabled]="isCreatingStock"
+                      class="p-button-text"></p-button>
+            <p-button label="Create Stock" 
+                      icon="pi pi-plus-circle" 
+                      (click)="createStock()"
+                      [disabled]="!createStockForm.storeId || !createStockForm.productId || createStockForm.quantity < 0 || isCreatingStock"
+                      [loading]="isCreatingStock"
+                      class="p-button-info"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
