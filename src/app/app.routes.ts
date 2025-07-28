@@ -19,8 +19,8 @@ export const routes: Routes = [
   { path: 'products', component: ProductsComponent },
 
   { path: 'cart', component: CartComponent },
-
-  { path: 'orders/payment', component: Payment },
+ 
+  { path: 'payment', component: Payment },
 
   {
     path: 'otp',

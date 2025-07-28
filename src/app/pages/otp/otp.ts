@@ -44,7 +44,7 @@ export class Otp {
             });
             localStorage.clear();
             setTimeout(() => {
-              this.router.navigate(['/']);
+              this.router.navigate(['/products']);
             }, 2000);
           },
           error: (error) => {

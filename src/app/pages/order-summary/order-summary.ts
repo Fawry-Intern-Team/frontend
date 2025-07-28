@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { OrderService, OrderResponse } from '../../services/order-service';
+import { CartService } from '../../services/cart.service';
+import { CartItem } from '../../models/cart.model';
 @Component({
   selector: 'app-order-summary',
   imports: [ReactiveFormsModule, CommonModule, ButtonModule, InputTextModule, ToastModule],
@@ -17,9 +19,12 @@ import { OrderService, OrderResponse } from '../../services/order-service';
 })
 export class OrderSummary {
   order: OrderResponse | null = null;
-  constructor(private fb: FormBuilder, private router: Router, private messageService: MessageService, private orderService: OrderService) {
+  orderProducts: CartItem[] = [];
+  constructor(private fb: FormBuilder, private router: Router, private messageService: MessageService, private orderService: OrderService,
+              private cartService: CartService) { 
   }
   ngOnInit() {
+    this.orderProducts = this.cartService.getItems();
     const orderId = localStorage.getItem('orderId');
     if (orderId) {
       this.orderService.getOrderById(orderId).subscribe({
@@ -37,8 +42,8 @@ export class OrderSummary {
   }
 
   getSubtotal(): number {
-    if (!this.order) return 0;
-    return this.order.orderProducts.reduce(
+    if (!this.orderProducts) return 0;
+    return this.orderProducts.reduce(
       (sum: number, p: any) => sum + 100 * p.quantity,
       0
     );

@@ -8,6 +8,71 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { SliderModule } from 'primeng/slider';
 
+
+ const PRODUCTS: Product[] = [
+  {
+    name: 'Wireless Mouse',
+    description: 'Ergonomic wireless mouse with USB receiver',
+    price: 25.99,
+    imageUrl: 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=800&q=60',
+    stockQuantity: 120,
+    categoryName: 'Accessories',
+    createdAt: '2025-07-01T10:00:00Z',
+    updatedAt: '2025-07-15T08:30:00Z',
+    deletedAt: null,
+    isDeleted: false
+  },
+  {
+    name: 'Mechanical Keyboard',
+    description: 'RGB backlit mechanical keyboard with blue switches',
+    price: 79.99,
+    imageUrl: 'https://plus.unsplash.com/premium_photo-1719289799376-d3de0ca4ddbc?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    stockQuantity: 60,
+    categoryName: 'Accessories',
+    createdAt: '2025-06-20T14:15:00Z',
+    updatedAt: '2025-07-10T09:45:00Z',
+    deletedAt: null,
+    isDeleted: false
+  },
+  {
+    name: '27" 4K Monitor',
+    description: 'Ultra HD monitor with HDMI and DisplayPort',
+    price: 329.99,
+    imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    stockQuantity: 25,
+    categoryName: 'Monitors',
+    createdAt: '2025-05-10T12:00:00Z',
+    updatedAt: '2025-07-01T12:00:00Z',
+    deletedAt: null,
+    isDeleted: false
+  },
+  {
+    name: 'Gaming Headset',
+    description: 'Surround sound gaming headset with microphone',
+    price: 49.99,
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    stockQuantity: 75,
+    categoryName: 'Audio',
+    createdAt: '2025-04-15T16:30:00Z',
+    updatedAt: '2025-06-25T13:00:00Z',
+    deletedAt: null,
+    isDeleted: false
+  },
+  {
+    name: 'USB-C Charging Cable',
+    description: 'Durable USB-C to USB-A charging cable, 1.5m',
+    price: 9.99,
+    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=799&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    stockQuantity: 300,
+    categoryName: 'Cables',
+    createdAt: '2025-07-10T11:00:00Z',
+    updatedAt: '2025-07-20T11:00:00Z',
+    deletedAt: null,
+    isDeleted: false
+  }
+];
+
+
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -85,6 +150,8 @@ export class ProductsComponent implements OnInit {
         next: (results) => (this.suggestions = results),
         error: (err) => console.error(err),
       });
+      this.products = PRODUCTS; 
+      this.isLoading = false;
   }
 
   loadCategories() {

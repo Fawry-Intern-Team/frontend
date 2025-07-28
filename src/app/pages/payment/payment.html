@@ -1,41 +1,46 @@
-<div class="max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-  <h1 class="text-2xl font-semibold mb-6 text-center text-gray-800">💳 Payment Page</h1>
+<div class="max-w-2xl mx-auto mt-12 px-6">
+  <div class="bg-white shadow-xl rounded-2xl p-8 border border-gray-200 transition-all duration-300">
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
-  <!-- Amount (Read-only) -->
-    <div>
-      <label for="amount" class="block mb-1 text-sm font-medium text-gray-700">Amount</label>
-      <input id="amount" pInputText type="text" [value]="amount" 
-        class="w-full bg-gray-100 cursor-not-allowed" disabled />
-    </div>
+ <!-- Header -->
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8 flex items-center justify-center gap-2">
+     💳 Payment Page
+    </h1>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Amount (Read-only) -->
+      <div>
+        <label for="amount" class="block mb-1 text-sm font-medium text-gray-700">Amount</label>
+        <input id="amount" pInputText type="text" [value]="amount" class="w-full bg-gray-100 cursor-not-allowed"
+          disabled />
+      </div>
 
-    <!-- Card Number -->
-    <div>
-      <label for="cardNumber" class="block mb-1 text-sm font-medium text-gray-700">Card Number</label>
-      <input id="cardNumber" pInputText type="text" placeholder="Enter 16-digit card number"
-        formControlName="cardNumber" class="w-full" />
-      <small *ngIf="form.get('cardNumber')?.invalid && form.get('cardNumber')?.touched" class="text-red-500">
-        Card number is required and must be 16 digits.
-      </small>
-    </div>
+      <!-- Card Number -->
+      <div>
+        <label for="cardNumber" class="block mb-1 text-sm font-medium text-gray-700">Card Number</label>
+        <input id="cardNumber" pInputText type="text" placeholder="Enter 16-digit card number"
+          formControlName="cardNumber" class="w-full" />
+        <small *ngIf="form.get('cardNumber')?.invalid && form.get('cardNumber')?.touched" class="text-red-500">
+          Card number is required and must be 16 digits.
+        </small>
+      </div>
 
-    <!-- Card Holder Name -->
-    <div>
-      <label for="cardHolderName" class="block mb-1 text-sm font-medium text-gray-700">Card Holder Name</label>
-      <input id="cardHolderName" pInputText type="text" placeholder="Enter full name" formControlName="cardHolderName"
-        class="w-full" />
-      <small *ngIf="form.get('cardHolderName')?.invalid && form.get('cardHolderName')?.touched" class="text-red-500">
-        Name is required (min 3 characters).
-      </small>
-    </div>
-  
-    <!-- Submit -->
-    <button type="submit" pButton label="Submit Payment" class="w-full" [disabled]="form.invalid"></button>
+      <!-- Card Holder Name -->
+      <div>
+        <label for="cardHolderName" class="block mb-1 text-sm font-medium text-gray-700">Card Holder Name</label>
+        <input id="cardHolderName" pInputText type="text" placeholder="Enter full name" formControlName="cardHolderName"
+          class="w-full" />
+        <small *ngIf="form.get('cardHolderName')?.invalid && form.get('cardHolderName')?.touched" class="text-red-500">
+          Name is required (min 3 characters).
+        </small>
+      </div>
 
-    <!-- Success Message -->
-    <p *ngIf="form.valid && form.touched" class="text-green-600 text-sm mt-3 text-center">
-      ✅ Payment details are valid. Ready to submit.
-    </p>
-  </form>
-  <p-toast></p-toast>
+      <!-- Submit -->
+      <button type="submit" pButton label="Submit Payment" class="w-full" [disabled]="form.invalid"></button>
+
+      <!-- Success Message -->
+      <p *ngIf="form.valid && form.touched" class="text-green-600 text-sm mt-3 text-center">
+        ✅ Payment details are valid. Ready to submit.
+      </p>
+    </form>
+    <p-toast></p-toast>
+  </div>
 </div>

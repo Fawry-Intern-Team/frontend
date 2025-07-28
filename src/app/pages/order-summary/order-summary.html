@@ -11,13 +11,13 @@
 
       <!-- Product List -->
       <div class="space-y-5">
-        <div *ngFor="let product of order.orderProducts" class="flex items-center justify-between">
+        <div *ngFor="let item of orderProducts" class="flex items-center justify-between">
           <div>
-            <p class="text-base font-medium text-gray-800">{{ product.productId }}</p>
-            <p class="text-sm text-gray-500">Qty: {{ product.quantity }}</p>
+            <p class="text-base font-medium text-gray-800">{{ item.product.name }}</p>
+            <p class="text-sm text-gray-500">Qty: {{ item.quantity}}</p>
           </div>
           <p class="text-base font-semibold text-gray-700">
-            ${{ (100 * product.quantity).toFixed(2) }}
+            ${{ (item.product.price).toFixed(2) }}
           </p>
         </div>
       </div>
@@ -33,7 +33,7 @@
         </div>
         <div class="flex justify-between text-lg font-bold text-gray-900">
           <span>Total</span>
-          <span>${{ order.totalAmount.toFixed(2) }}</span>
+          <span>${{getSubtotal().toFixed(2)  }}</span>
         </div>
       </div>
 
