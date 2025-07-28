@@ -1,0 +1,58 @@
+<div class="max-w-2xl mx-auto mt-12 px-6">
+  <div class="bg-white shadow-xl rounded-2xl p-8 border border-gray-200 transition-all duration-300">
+
+    <!-- Header -->
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8 flex items-center justify-center gap-2">
+      🧾 Order Summary
+    </h1>
+
+    <!-- Order Content -->
+    <div *ngIf="order; else loading">
+
+      <!-- Product List -->
+      <div class="space-y-5">
+        <div *ngFor="let product of order.orderProducts" class="flex items-center justify-between">
+          <div>
+            <p class="text-base font-medium text-gray-800">{{ product.productId }}</p>
+            <p class="text-sm text-gray-500">Qty: {{ product.quantity }}</p>
+          </div>
+          <p class="text-base font-semibold text-gray-700">
+            ${{ (100 * product.quantity).toFixed(2) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t my-6"></div>
+
+      <!-- Totals -->
+      <div class="text-sm text-gray-700 space-y-2">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span>{{ getSubtotal() | number: '1.2-2' }}</span>
+        </div>
+        <div class="flex justify-between text-lg font-bold text-gray-900">
+          <span>Total</span>
+          <span>${{ order.totalAmount.toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <!-- Checkout Button -->
+      <button
+        (click)="onCheckout()"
+        pButton
+        label="Proceed to Checkout"
+        class="mt-8 w-full text-white font-semibold"
+        style="background-color: #4f46e5; border-color: #4f46e5;"
+      ></button>
+    </div>
+
+    <!-- Loading State -->
+    <ng-template #loading>
+      <div class="animate-pulse text-center text-gray-400 italic mt-6">Loading order details...</div>
+    </ng-template>
+
+    <!-- Toast -->
+    <p-toast></p-toast>
+  </div>
+</div>

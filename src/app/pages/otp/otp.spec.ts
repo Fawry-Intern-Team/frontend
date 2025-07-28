@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AccountForm } from './account-form';
+import { Otp } from './otp';
 
-describe('AccountForm', () => {
-  let component: AccountForm;
-  let fixture: ComponentFixture<AccountForm>;
+describe('Otp', () => {
+  let component: Otp;
+  let fixture: ComponentFixture<Otp>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccountForm]
+      imports: [Otp]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AccountForm);
+    fixture = TestBed.createComponent(Otp);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

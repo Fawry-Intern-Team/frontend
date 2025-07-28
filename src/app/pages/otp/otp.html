@@ -1,0 +1,28 @@
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+    <h1 class="text-2xl font-semibold mb-6 text-center text-gray-800">
+        🔑 OTP Verification Page
+    </h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- OTP Input -->
+        <div>
+            <label for="otp" class="block mb-1 text-sm font-medium text-gray-700">Enter OTP</label>
+            <input id="otp" pInputText type="text" placeholder="Enter 6-digit OTP" formControlName="otp"
+                class="w-full" />
+            <small *ngIf="form.get('otp')?.invalid && form.get('otp')?.touched" class="text-red-500">
+                OTP is required and must be 6 digits.
+            </small>
+        </div>
+
+
+        <!-- Submit -->
+        <button type="submit" pButton label="Submit Payment" class="w-full" [disabled]="form.invalid"></button>
+
+        <!-- Success Message -->
+        <p *ngIf="form.valid && form.touched" class="text-green-600 text-sm mt-3 text-center">
+            ✅ OTP is valid. Ready to submit.
+        </p>
+    </form>
+    <p-toast></p-toast>
+</div>
