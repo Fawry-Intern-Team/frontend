@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Product } from '../../models/product.model';
+import { StoreProductResponse } from '../../models/store-product-response.model';
 import { CartService } from '../../services/cart.service';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 
@@ -11,7 +11,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
   styleUrls: ['./product-card.component.css'],
 })
 export class ProductCardComponent {
-  @Input() product!: Product;
+  @Input() product!: StoreProductResponse;
 
   constructor(private cartService: CartService) {}
 
