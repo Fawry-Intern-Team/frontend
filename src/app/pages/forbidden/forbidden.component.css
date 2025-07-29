@@ -1,0 +1,15 @@
+.forbidden-container {
+    text-align: center;
+    padding: 3rem;
+    font-family: sans-serif;
+}
+
+.forbidden-container h1 {
+    font-size: 3rem;
+    color: #c0392b;
+}
+
+.forbidden-container p {
+    font-size: 1.2rem;
+    margin: 1rem 0;
+}

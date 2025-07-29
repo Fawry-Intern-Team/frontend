@@ -1,5 +1,6 @@
 @import url('primeicons/primeicons.css');
-@import url('../AUTH_STYLES.css');
+/* @import url('../AUTH_STYLES.css'); */
+@import url('tailwindcss');
 
 body {
   background-color: white;

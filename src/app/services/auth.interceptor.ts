@@ -7,12 +7,15 @@ import { catchError, switchMap, throwError } from 'rxjs';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
+  // Prevent retrying register or login endpoints
+  const isAuthEndpoint = req.url.includes('/register') || req.url.includes('/login') || req.url.includes('/refresh');
+
   return next(req).pipe(
     catchError(err => {
-      if (err.status === 401) {
+      if (err.status === 401 && !isAuthEndpoint) {
         console.log('[Interceptor] 401 caught for:', req.url);
         return authService.refresh().pipe(
-          switchMap(() => next(req)),
+          switchMap(() => next(req.clone())), // clone to re-send the request with updated token
           catchError(() => throwError(() => err))
         );
       }

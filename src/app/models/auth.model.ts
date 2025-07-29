@@ -29,8 +29,8 @@ export interface AuthResponse {
 }
 
 export interface User {
-  id?: string;
+  userId: string;
+  name: string;
   email: string;
-  roles?: string[];
-  isAuthenticated?: boolean;
-} 
+  roles: string[];
+}

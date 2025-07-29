@@ -1,87 +1,94 @@
 <p-toast></p-toast>
 
-<div class="login-container">
-  <p-card>
-    <div class="form-header">
-      <h2>Login</h2>
+<div class="flex items-center justify-center p-8 min-h-screen bg-[#f4f6f8]">
+  <p-card class="w-full max-w-[420px] bg-white rounded-2xl shadow-md p-8">
+    <div class="text-center mb-4">
+      <h2 class="text-blue-600 font-semibold text-xl">Login</h2>
     </div>
 
-    <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="p-fluid">
+    <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="space-y-4">
       <!-- Email -->
-      <div class="p-field">
-        <input
-          id="email"
-          type="email"
-          name="email"
-          pInputText
-          [(ngModel)]="email"
-          #emailModel="ngModel"
-          required
-          placeholder="Email"
-          [ngClass]="{ 'p-invalid': emailModel.invalid && (emailModel.touched || formSubmitted) }"
-        />
-        <p-message *ngIf="emailModel.invalid && (emailModel.touched || formSubmitted)" severity="error" text="Email is required."></p-message>
+      <div>
+        <input id="email" type="email" name="email" pInputText [(ngModel)]="email" #emailModel="ngModel" required email
+          placeholder="Email" [ngClass]="{ 'p-invalid': emailModel.invalid && (emailModel.touched || formSubmitted) }"
+          class="w-full rounded-lg border border-gray-300 bg-[#fafbfc] px-4 py-3 text-base placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:border-blue-500" />
+        <p-message *ngIf="emailModel.errors?.['required'] && (emailModel.touched || formSubmitted)" severity="error"
+          text="Email is required."></p-message>
+
+        <p-message *ngIf="emailModel.errors?.['email'] && (emailModel.touched || formSubmitted)" severity="error"
+          text="Please enter a valid email address."></p-message>
       </div>
-    
+
       <!-- Password -->
-      <div class="p-field">
-        <p-password
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-          #passwordModel="ngModel"
-          required
-          [feedback]="false"
-          [toggleMask]="true"
-          placeholder="Password"
-          style="width:100%"
-          [ngClass]="{ 'p-invalid': passwordModel.invalid && (passwordModel.touched || formSubmitted) }"
-        ></p-password>
-        <p-message *ngIf="passwordModel.invalid && (passwordModel.touched || formSubmitted)" severity="error" text="Password is required."></p-message>
+      <div>
+        <p-password id="password" name="password" [(ngModel)]="password" #passwordModel="ngModel" required
+          [feedback]="false" [toggleMask]="true" placeholder="Password" style="width:100%"
+          [inputStyle]="{ width: '100%' }"
+          [ngClass]="{ 'p-invalid': passwordModel.invalid && (passwordModel.touched || formSubmitted) }"></p-password>
+        <p-message *ngIf="passwordModel.invalid && (passwordModel.touched || formSubmitted)" severity="error"
+          text="Password is required."></p-message>
       </div>
-    
+
       <!-- Keep me logged in -->
-      <div class="p-field-checkbox keep-logged-in-checkbox">
-        <p-checkbox
-          inputId="keepLoggedIn"
-          name="keepLoggedIn"
-          [(ngModel)]="keepLoggedIn"
-          [binary]="true"
-        ></p-checkbox>
-        <label for="keepLoggedIn" style="font-size: 0.8rem;">Keep me logged in</label>
+      <div class="flex items-center text-sm text-gray-700">
+        <p-checkbox inputId="keepLoggedIn" name="keepLoggedIn" [(ngModel)]="keepLoggedIn" [binary]="true"
+          class="mr-2"></p-checkbox>
+        <label for="keepLoggedIn" class="text-xs">Keep me logged in</label>
       </div>
-    
+
       <!-- Login button -->
-      <div class="p-field">
-        <button pButton type="submit" class="p-button-primary full-width">Login</button>
-      </div>
-    
+      <button type="submit" [disabled]="loading" class="cursor-pointer w-full bg-blue-600 text-white font-semibold text-base py-3 rounded-md transition 
+              hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+        <span *ngIf="loading"
+          class="loader mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        <span>Login</span>
+      </button>
+
+
       <!-- Links -->
-      <div class="login-links">
-        <span>Don't have an account?</span>
-        <a routerLink="/register" class="switch-link">Signup</a>
+      <div class="flex justify-center text-sm mt-2">
+        <span class="text-gray-700">Don't have an account?</span>
+        <a class="ml-1 text-blue-600 no-underline text-sm cursor-pointer flex items-center gap-1"
+          (click)="navigateToSignup()">
+          <span *ngIf="signupLoading"
+            class="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+          <span>Signup</span>
+        </a>
       </div>
-    
+
       <!-- Divider -->
-      <div class="divider-with-text">
-        <span>OR</span>
+      <div class="flex items-center text-center my-6">
+        <div class="flex-1 border-t border-gray-300"></div>
+        <span class="mx-2 text-gray-500 text-xs">OR</span>
+        <div class="flex-1 border-t border-gray-300"></div>
       </div>
-    
+
       <!-- Google Button -->
-      <div class="p-field">
-        <button pButton type="button" class="p-button-outlined google-btn" (click)="loginWithGoogle()">
-          <span class="google-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 533.5 544.3">
-              <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.4-34.1-4-50.2H272v95.1h146.9c-6.3 34-25 62.7-53.5 81.9v67h86.4c50.6-46.6 81.7-115.3 81.7-193.8z"/>
-              <path fill="#34a853" d="M272 544.3c72.6 0 133.6-24 178.2-65.1l-86.4-67c-24 16.1-54.7 25.6-91.8 25.6-70.5 0-130.3-47.6-151.6-111.3h-89.4v69.9c44.8 88.4 137 148 241 148z"/>
-              <path fill="#fbbc04" d="M120.4 326.5c-10.1-30-10.1-62.4 0-92.5v-69.9h-89.4c-38.6 76.4-38.6 166 0 242.4l89.4-69.9z"/>
-              <path fill="#ea4335" d="M272 107.7c39.4-.6 77 13.5 106 39.5l79.3-79.3C412.2 24 345.4-.6 272 0 168.9 0 76.7 59.6 31 148l89.4 69.9C141.6 155.3 201.5 107.7 272 107.7z"/>
-            </svg>
+      <div>
+        <button type="button" (click)="loginWithGoogle()" [disabled]="googleLoading"
+          class="cursor-pointer flex items-center justify-center w-full h-12 border border-gray-300 rounded-md text-gray-700 text-base font-medium hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="mr-2">
+            <ng-container *ngIf="!googleLoading; else loadingSpinner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 533.5 544.3">
+                <path fill="#4285f4"
+                  d="M533.5 278.4c0-17.4-1.4-34.1-4-50.2H272v95.1h146.9c-6.3 34-25 62.7-53.5 81.9v67h86.4c50.6-46.6 81.7-115.3 81.7-193.8z" />
+                <path fill="#34a853"
+                  d="M272 544.3c72.6 0 133.6-24 178.2-65.1l-86.4-67c-24 16.1-54.7 25.6-91.8 25.6-70.5 0-130.3-47.6-151.6-111.3h-89.4v69.9c44.8 88.4 137 148 241 148z" />
+                <path fill="#fbbc04"
+                  d="M120.4 326.5c-10.1-30-10.1-62.4 0-92.5v-69.9h-89.4c-38.6 76.4-38.6 166 0 242.4l89.4-69.9z" />
+                <path fill="#ea4335"
+                  d="M272 107.7c39.4-.6 77 13.5 106 39.5l79.3-79.3C412.2 24 345.4-.6 272 0 168.9 0 76.7 59.6 31 148l89.4 69.9C141.6 155.3 201.5 107.7 272 107.7z" />
+              </svg>
+            </ng-container>
+            <ng-template #loadingSpinner>
+              <span
+                class="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin inline-block"></span>
+            </ng-template>
           </span>
-          <span>Login with Google</span>
+          <span>Continue with Google</span>
         </button>
+
       </div>
     </form>
-    
   </p-card>
-</div> 
+</div>
