@@ -9,29 +9,34 @@ import { Payment } from './pages/payment/payment';
 import { Otp } from './pages/otp/otp';
 import { OrderSummary } from './pages/order-summary/order-summary';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
+import { AUTH_ROUTES } from './routes';
+import { AuthGuard } from './shared';
+import { LogoutComponent } from './components/logout/logout';
+import { RedirectIfAuthenticatedGuard } from './shared/guards/RedirectIfAuthenticatedGuard.guard';
 
 export const routes: Routes = [
-  {
-    path: 'place-order',
-    component: PlaceOrder,
-  },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'products', component: ProductsComponent },
-
-  { path: 'cart', component: CartComponent },
- 
-  { path: 'payment', component: Payment },
+  ...AUTH_ROUTES, // public routes (login, register)
 
   {
-    path: 'otp',
-    component: Otp,
+    path: '',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', redirectTo: 'products', pathMatch: 'full' }, // Redirect after login
+      { path: 'place-order', component: PlaceOrder },
+      { path: 'products', component: ProductsComponent },
+      { path: 'cart', component: CartComponent },
+      { path: 'payment', component: Payment },
+      { path: 'otp', component: Otp },
+      { path: 'order-summary', component: OrderSummary },
+      { path: 'store/admin', component: AdminDashboardComponent },
+      { path: 'logout', component: LogoutComponent}
+    ],
   },
-  {
-    path: 'order-summary',
-    component: OrderSummary,
-  },
-  { path: 'store/admin', component: AdminDashboardComponent },
+
+  { path: '', redirectTo: 'login', pathMatch: 'full' }, // Redirect if not logged in
 ];
+
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
