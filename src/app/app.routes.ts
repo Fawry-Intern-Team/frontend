@@ -13,27 +13,38 @@ import { AUTH_ROUTES } from './routes';
 import { AuthGuard } from './shared';
 import { LogoutComponent } from './components/logout/logout';
 import { RedirectIfAuthenticatedGuard } from './shared/guards/RedirectIfAuthenticatedGuard.guard';
+import { RoleGuard } from './shared/guards/role.guard';
+import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
+import { LoginSuccessComponent } from './pages';
 
 export const routes: Routes = [
   ...AUTH_ROUTES, // public routes (login, register)
-
+  { path: 'forbidden', component: ForbiddenComponent },
   {
     path: '',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard], // must be authenticated
     children: [
-      { path: '', redirectTo: 'products', pathMatch: 'full' }, // Redirect after login
-      { path: 'place-order', component: PlaceOrder },
+      { path: '', redirectTo: 'products', pathMatch: 'full' },
       { path: 'products', component: ProductsComponent },
       { path: 'cart', component: CartComponent },
+      { path: 'place-order', component: PlaceOrder },
       { path: 'payment', component: Payment },
       { path: 'otp', component: Otp },
       { path: 'order-summary', component: OrderSummary },
-      { path: 'store/admin', component: AdminDashboardComponent },
-      { path: 'logout', component: LogoutComponent}
-    ],
-  },
-
-  { path: '', redirectTo: 'login', pathMatch: 'full' }, // Redirect if not logged in
+      { path: 'login-success', component: LoginSuccessComponent },
+      {
+        path: 'store/admin',
+        component: AdminDashboardComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      {
+        path: 'logout',
+        component: LogoutComponent
+      }
+    ]
+  }, // Redirect if not logged in
+  { path: '**', redirectTo: '' }
 ];
 
 
