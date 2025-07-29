@@ -32,6 +32,8 @@ import { User } from '../../models';
   templateUrl: './register.component.html'
 })
 export class RegisterComponent {
+  firstName = '';
+  lastName = '';
   email = '';
   password = '';
   confirmPassword = '';
@@ -60,26 +62,37 @@ export class RegisterComponent {
       !trimmedEmail ||
       !this.password ||
       this.password.length < 6 ||
-      !this.confirmPassword;
+      !this.confirmPassword ||
+      !this.firstName ||
+      !this.lastName;
 
     if (isInvalid) return;
 
     this.loading = true;
 
-    this.auth.register({ email: trimmedEmail, password: this.password }).subscribe({
+    this.auth.register({
+      email: trimmedEmail,
+      password: this.password,
+      firstName: this.firstName,
+      lastName: this.lastName
+    }).subscribe({
       next: (res) => {
         // Convert and store user
         const user: User = {
           userId: res.userId,
+          firstName: res.firstName,
+          lastName: res.lastName,
+          photoURL: '',
           email: res.email,
-          name: 'Default',
           roles: res.roles
         };
-        localStorage.setItem('user', JSON.stringify(user));
-        
+
+        this.auth.setUser(user);
+
         this.loading = false;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Registeration successful' });
-        this.router.navigate([this.auth.getRegisterRedirectPath()]);
+        this.router.navigate([this.auth.getRegisterRedirectPath()])
+          .then(() => window.location.reload());
       },
       error: (err) => {
         this.loading = false;
@@ -89,7 +102,7 @@ export class RegisterComponent {
             summary: 'Registration Failed',
             detail: 'This email is already registered.'
           });
-        } else if(err.status === 503){
+        } else if (err.status === 503) {
           this.messageService.add({
             severity: 'error',
             summary: 'Service Unavailable',

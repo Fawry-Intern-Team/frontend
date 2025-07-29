@@ -17,11 +17,12 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword?: string;
   keepMeLoggedIn?: boolean;
-  roles?: string[];
 }
 
 export interface AuthResponse {
@@ -29,8 +30,10 @@ export interface AuthResponse {
 }
 
 export interface User {
+  firstName: string;
+  lastName: string;
+  photoURL: string;
   userId: string;
-  name: string;
   email: string;
   roles: string[];
 }
