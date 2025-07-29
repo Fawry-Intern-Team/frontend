@@ -3,20 +3,15 @@
 
     <!-- Product Image Container -->
     <div class="relative">
-        <img [src]="product.imageUrl" alt="{{ product.name }}"
+        <img [src]="product.imageUrl" [alt]="product.productName + ' image'"
             class="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105" />
 
-        <!-- Quick View bar (like your image) -->
+        <!-- Quick View bar -->
         <div
             class="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 flex justify-between items-center px-3 py-2 transition-opacity duration-300 rounded-b-lg">
 
-            <!-- Icon left -->
             <i class="bi bi-bag text-xl text-gray-700 cursor-pointer hover:text-black"></i>
-
-            <!-- Quick View text -->
             <span class="text-sm font-semibold text-blue-600 cursor-pointer">+ Quick View</span>
-
-            <!-- Icon right -->
             <i class="bi bi-eye text-xl text-gray-700 cursor-pointer hover:text-black"></i>
         </div>
 
@@ -29,8 +24,11 @@
     <!-- Product Info -->
     <div class="flex-1 mt-3 text-center">
         <h2 class="text-md font-semibold text-gray-800 mb-1 uppercase">{{ product.categoryName }}</h2>
-        <p class="text-lg font-bold text-gray-900 mb-1">{{ product.name }}</p>
+        <p class="text-lg font-bold text-gray-900 mb-1">{{ product.productName }}</p>
         <p class="text-green-600 font-bold text-md mb-2">{{ product.price | currency }}</p>
+        <p class="text-gray-500 text-sm mt-1">
+            🏬 {{ product.storeName || 'Unknown Store' }}
+        </p>
     </div>
 
     <!-- Add to Cart Button -->

@@ -1,7 +1,7 @@
-import { Product } from './product.model';
+import { StoreProductResponse } from './store-product-response.model';
 
 export interface CartItem {
-  product: Product;
+  product: StoreProductResponse;
   quantity: number;
 }
 export interface Cart {

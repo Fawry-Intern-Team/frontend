@@ -1,16 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Product } from '../models/product.model';
-import { PaginatedResponse } from '../models/response.model';
-
-interface PaginatedResponseDto<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  pageNumber: number;
-  pageSize: number;
-}
+import { StoreProductResponse } from '../models/store-product-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,24 +12,22 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-
-  getAllProductsPaginated(
-    page: number,
-    size: number
-  ): Observable<PaginatedResponseDto<Product>> {
+  getAllProducts(
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: StoreProductResponse[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+  }> {
     const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<PaginatedResponseDto<Product>>(
-      `${this.apiUrlProduct}`,
-      { params }
-    );
-  }
-
-  searchProducts(keyword: string): Observable<PaginatedResponseDto<Product>> {
-    const params = new HttpParams().set('keyword', keyword);
-    return this.http.get<PaginatedResponseDto<Product>>(
-      `${this.apiUrlProduct}/search`,
-      { params }
-    );
+    return this.http.get<{
+      content: StoreProductResponse[];
+      totalPages: number;
+      totalElements: number;
+      number: number;
+    }>(`${this.apiUrlProduct}`, { params });
   }
 
   getSuggestions(partial: string): Observable<string[]> {
@@ -47,43 +36,103 @@ export class ProductService {
     });
   }
 
+  searchProducts(
+    keyword: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: StoreProductResponse[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+  }> {
+    const params = new HttpParams()
+      .set('keyword', keyword)
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<{
+      content: StoreProductResponse[];
+      totalPages: number;
+      totalElements: number;
+      number: number;
+    }>(`${this.apiUrlProduct}`, { params });
+  }
+
   getProductsByCategory(
-    categoryName: string
-  ): Observable<PaginatedResponseDto<Product>> {
-    const params = new HttpParams().set('categoryName', categoryName);
-    return this.http.get<PaginatedResponseDto<Product>>(
-      `${this.apiUrlProduct}/category`,
-      {
-        params,
-      }
-    );
+    categoryName: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: StoreProductResponse[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+  }> {
+    const params = new HttpParams()
+      .set('categoryName', categoryName)
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<{
+      content: StoreProductResponse[];
+      totalPages: number;
+      totalElements: number;
+      number: number;
+    }>(`${this.apiUrlProduct}`, { params });
   }
 
   getProductsByPriceRange(
     min: number,
-    max: number
-  ): Observable<PaginatedResponseDto<Product>> {
-    const params = new HttpParams().set('minPrice', min).set('maxPrice', max);
-    return this.http.get<PaginatedResponseDto<Product>>(
-      `${this.apiUrlProduct}/price`,
-      {
-        params,
-      }
-    );
+    max: number,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: StoreProductResponse[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+  }> {
+    const params = new HttpParams()
+      .set('minPrice', min)
+      .set('maxPrice', max)
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<{
+      content: StoreProductResponse[];
+      totalPages: number;
+      totalElements: number;
+      number: number;
+    }>(`${this.apiUrlProduct}`, { params });
+  }
+
+  getAllProductsSorted(
+    sortBy: string,
+    sortDirection: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: StoreProductResponse[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+  }> {
+    const params = new HttpParams()
+      .set('sortBy', sortBy)
+      .set('sortDirection', sortDirection)
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<{
+      content: StoreProductResponse[];
+      totalPages: number;
+      totalElements: number;
+      number: number;
+    }>(`${this.apiUrlProduct}`, { params });
   }
 
   getAllCategories(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrlCategory}`);
   }
-
-  getAllProductsSorted(sortBy: string, sortDirection: string, page: number, size: number) {
-  const params = {
-    sortBy,
-    sortDirection,
-    page,
-    size
-  };
-  return this.http.get<PaginatedResponse<Product>>(`${this.apiUrlProduct}/sort`, { params });
-}
-
 }
