@@ -20,6 +20,7 @@ import { LoginSuccessComponent } from './pages';
 export const routes: Routes = [
   ...AUTH_ROUTES, // public routes (login, register)
   { path: 'forbidden', component: ForbiddenComponent },
+  { path: 'login-success', component: LoginSuccessComponent },
   {
     path: '',
     canActivate: [AuthGuard], // must be authenticated
@@ -31,7 +32,6 @@ export const routes: Routes = [
       { path: 'payment', component: Payment },
       { path: 'otp', component: Otp },
       { path: 'order-summary', component: OrderSummary },
-      { path: 'login-success', component: LoginSuccessComponent },
       {
         path: 'store/admin',
         component: AdminDashboardComponent,

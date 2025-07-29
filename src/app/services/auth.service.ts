@@ -47,6 +47,7 @@ export class AuthService {
   }
 
   register(data: RegisterRequest): Observable<User> {
+    data.keepMeLoggedIn = true;
     return this.http.post<User>(
       `${this.config.baseUrl}${this.config.registerPath}`,
       data,

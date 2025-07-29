@@ -69,23 +69,26 @@ export class LoginComponent {
     }).subscribe({
       next: (res) => {
         this.loading = false;
-    
+
         // Convert and store user
         const user: User = {
           userId: res.userId,
+          firstName: res.firstName,
+          lastName: res.lastName,
+          photoURL: '',
           email: res.email,
-          name: 'Default',
           roles: res.roles
         };
-        localStorage.setItem('user', JSON.stringify(user));
-    
-    
+
+        this.auth.setUser(user);
+
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Login successful' });
-        this.router.navigate([this.auth.getLoginRedirectPath()]);
+        this.router.navigate([this.auth.getLoginRedirectPath()])
+          .then(() => window.location.reload());
       },
       error: (err) => {
         this.loading = false;
-    
+
         if (err.status === 404 || err.status === 401) {
           this.messageService.add({
             severity: 'error',
@@ -107,7 +110,7 @@ export class LoginComponent {
         }
       }
     });
-    
+
   }
 
   googleLoading = false;

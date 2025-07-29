@@ -9,6 +9,25 @@
     </div>
 
     <form #registerForm="ngForm" (ngSubmit)="onRegister()" class="space-y-4">
+      <!-- First Name -->
+      <div>
+        <input id="firstName" type="firstName" name="firstName" pInputText [(ngModel)]="firstName" #firstNameModel="ngModel" required
+          placeholder="First name" [ngClass]="{ 'p-invalid': firstNameModel.invalid && (firstNameModel.touched || formSubmitted) }"
+          class="w-full rounded-lg border border-gray-300 bg-[#fafbfc] px-4 py-3 text-base placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:border-blue-500"
+          style="::placeholder { color: #6b7280 !important; }" />
+        <p-message *ngIf="firstNameModel.errors?.['required'] && (firstNameModel.touched || formSubmitted)" severity="error"
+          text="Please enter your first name."></p-message>
+      </div>
+
+      <!-- Last Name -->
+      <div>
+        <input id="lastName" type="lastName" name="lastName" pInputText [(ngModel)]="lastName" #lastNameModel="ngModel" required
+          placeholder="Last name" [ngClass]="{ 'p-invalid': lastNameModel.invalid && (lastNameModel.touched || formSubmitted) }"
+          class="w-full rounded-lg border border-gray-300 bg-[#fafbfc] px-4 py-3 text-base placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:border-blue-500" />
+        <p-message *ngIf="lastNameModel.errors?.['required'] && (lastNameModel.touched || formSubmitted)" severity="error"
+          text="Please enter your last name."></p-message>
+      </div>
+
       <!-- Email -->
       <div>
         <input id="email" type="email" name="email" pInputText [(ngModel)]="email" #emailModel="ngModel" required email
