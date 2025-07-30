@@ -27,112 +27,69 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
+    }>(`${this.apiUrlProduct}`, { params, withCredentials: true });
   }
 
   getSuggestions(partial: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrlProduct}/suggestions`, {
-      params: { partial ,withCredentials:true},
+      params: { partial }, withCredentials: true,
     });
   }
 
-  searchProducts(
-    keyword: string,
-    page: number = 0,
-    size: number = 10
-  ): Observable<{
+  searchProductsFiltered(filters: {
+    keyword?: string;
+    category?: string;
+    min?: number;
+    max?: number;
+    sortBy?: string;
+    sortDirection?: string;
+    page?: number;
+    size?: number;
+  }): Observable<{
     content: StoreProductResponse[];
     totalPages: number;
     totalElements: number;
     number: number;
   }> {
-    const params = new HttpParams()
-      .set('keyword', keyword)
-      .set('page', page)
-      .set('size', size);
+    let params = new HttpParams();
+
+    if (filters.keyword) {
+      params = params.set('keyword', filters.keyword);
+    }
+
+    if (filters.category) {
+      params = params.set('category', filters.category);
+    }
+
+    if (filters.min != null) {
+      params = params.set('min', filters.min.toString());
+    }
+
+    if (filters.max != null) {
+      params = params.set('max', filters.max.toString());
+    }
+
+    if (filters.sortBy) {
+      params = params.set('sortBy', filters.sortBy);
+    }
+
+    if (filters.sortDirection) {
+      params = params.set('sortDirection', filters.sortDirection);
+    }
+
+    params = params
+      .set('page', (filters.page ?? 0).toString())
+      .set('size', (filters.size ?? 10).toString());
 
     return this.http.get<{
       content: StoreProductResponse[];
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}/search`, { params ,withCredentials:true});
-  }
-
-  getProductsByCategory(
-    categoryName: string,
-    page: number = 0,
-    size: number = 10
-  ): Observable<{
-    content: StoreProductResponse[];
-    totalPages: number;
-    totalElements: number;
-    number: number;
-  }> {
-    const params = new HttpParams()
-      .set('categoryName', categoryName)
-      .set('page', page)
-      .set('size', size);
-
-    return this.http.get<{
-      content: StoreProductResponse[];
-      totalPages: number;
-      totalElements: number;
-      number: number;
-    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
-  }
-
-  getProductsByPriceRange(
-    min: number,
-    max: number,
-    page: number = 0,
-    size: number = 10
-  ): Observable<{
-    content: StoreProductResponse[];
-    totalPages: number;
-    totalElements: number;
-    number: number;
-  }> {
-    const params = new HttpParams()
-      .set('minPrice', min)
-      .set('maxPrice', max)
-      .set('page', page)
-      .set('size', size);
-
-    return this.http.get<{
-      content: StoreProductResponse[];
-      totalPages: number;
-      totalElements: number;
-      number: number;
-    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
-  }
-
-  getAllProductsSorted(
-    sortBy: string,
-    sortDirection: string,
-    page: number = 0,
-    size: number = 10
-  ): Observable<{
-    content: StoreProductResponse[];
-    totalPages: number;
-    totalElements: number;
-    number: number;
-  }> {
-    const params = new HttpParams()
-      .set('sortBy', sortBy)
-      .set('sortDirection', sortDirection)
-      .set('page', page)
-      .set('size', size);
-
-    return this.http.get<{
-      content: StoreProductResponse[];
-      totalPages: number;
-      totalElements: number;
-      number: number;
-    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
+    }>(`${this.apiUrlProduct}/search`, { params , withCredentials: true});
   }
 
   getAllCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrlCategory}`,{withCredentials:true});
+    return this.http.get<any[]>(`${this.apiUrlCategory}`, { withCredentials: true });
   }
 }
