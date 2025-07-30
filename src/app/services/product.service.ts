@@ -7,8 +7,8 @@ import { StoreProductResponse } from '../models/store-product-response.model';
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrlProduct = 'http://localhost:8081/product';
-  private apiUrlCategory = 'http://localhost:8081/category';
+  private apiUrlProduct = 'http://localhost:8080/product';
+  private apiUrlCategory = 'http://localhost:8080/category';
 
   constructor(private http: HttpClient) {}
 
@@ -27,12 +27,12 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params });
+    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
   }
 
   getSuggestions(partial: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrlProduct}/suggestions`, {
-      params: { partial },
+      params: { partial ,withCredentials:true},
     });
   }
 
@@ -56,7 +56,7 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params });
+    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
   }
 
   getProductsByCategory(
@@ -79,7 +79,7 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params });
+    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
   }
 
   getProductsByPriceRange(
@@ -104,7 +104,7 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params });
+    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
   }
 
   getAllProductsSorted(
@@ -129,10 +129,10 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params });
+    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
   }
 
   getAllCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrlCategory}`);
+    return this.http.get<any[]>(`${this.apiUrlCategory}`,{withCredentials:true});
   }
 }
