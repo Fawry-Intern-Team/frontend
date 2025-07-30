@@ -50,7 +50,7 @@
         
         <div class="flex items-center justify-center text-gray-600 text-sm">
             <i class="pi pi-shop text-gray-400 mr-2"></i>
-            <span>{{ product.storeName || 'Unknown Store' }}</span>
+            <span>{{ (product.storeLocation || 'Unknown Store') | titlecase}}</span>
         </div>
     </div>
 

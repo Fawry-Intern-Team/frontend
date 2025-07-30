@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,12 +11,7 @@ import { SliderModule } from 'primeng/slider';
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    ProductCardComponent,
-    SliderModule  // Keep your existing slider if you're using it elsewhere
-  ],
+  imports: [CommonModule, FormsModule, ProductCardComponent, SliderModule],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })
@@ -28,14 +22,12 @@ export class ProductsComponent implements OnInit {
   searchKeyword: string = '';
   suggestions: string[] = [];
   private searchTerms = new Subject<string>();
-  scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+
   selectedCategory: string = '';
   categories: string[] = [];
 
-  minPrice!: number;
-  maxPrice!: number;
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
 
   currentPage: number = 0;
   totalPages: number = 0;
@@ -46,7 +38,7 @@ export class ProductsComponent implements OnInit {
   constructor(private productService: ProductService) {}
 
   ngOnInit() {
-    this.fetchProducts();
+    this.fetchFilteredProducts();
     this.loadCategories();
 
     this.searchTerms
@@ -61,22 +53,6 @@ export class ProductsComponent implements OnInit {
       });
   }
 
-  fetchProducts(page: number = 0) {
-    this.isLoading = true;
-    this.productService.getAllProducts(page, this.pageSize).subscribe({
-      next: (data) => {
-        this.products = data.content;
-        this.totalPages = data.totalPages;
-        this.currentPage = data.number;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-      },
-    });
-  }
-
   loadCategories() {
     this.productService.getAllCategories().subscribe({
       next: (cats) => {
@@ -86,80 +62,20 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  onSearchChange(term: any): void {
-    const value = typeof term === 'string' ? term : term.target.value;
-    if (value.length >= 1) {
-      this.searchTerms.next(value);
-    } else {
-      this.suggestions = [];
-      this.fetchProducts();
-    }
-  }
-
-  selectSuggestion(suggestion: string): void {
-    this.searchKeyword = suggestion;
-    this.suggestions = [];
-    this.search();
-  }
-
-  search(): void {
+  fetchFilteredProducts(): void {
     this.isLoading = true;
-    this.productService.searchProducts(this.searchKeyword).subscribe({
-      next: (data) => {
-        this.products = data.content;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-      },
-    });
-  }
-
-  filterByCategory() {
-    if (this.selectedCategory === '') {
-      this.fetchProducts();
-    } else {
-      this.isLoading = true;
-      this.productService
-        .getProductsByCategory(this.selectedCategory)
-        .subscribe({
-          next: (data) => {
-            this.products = data.content;
-            this.isLoading = false;
-          },
-          error: (err) => {
-            console.error(err);
-            this.isLoading = false;
-          },
-        });
-    }
-  }
-
-  filterByPriceRange() {
-    if (this.minPrice == null && this.maxPrice == null) {
-      this.fetchProducts();
-    } else {
-      this.isLoading = true;
-      this.productService
-        .getProductsByPriceRange(this.minPrice, this.maxPrice)
-        .subscribe({
-          next: (data) => {
-            this.products = data.content;
-            this.isLoading = false;
-          },
-          error: (err) => {
-            console.error(err);
-            this.isLoading = false;
-          },
-        });
-    }
-  }
-
-  loadSortedProducts() {
-    this.isLoading = true;
+    console.log("dsgsdfgdfgdsfg");
     this.productService
-      .getAllProductsSorted(this.sortBy, this.sortDirection)
+      .searchProductsFiltered({
+        keyword: this.searchKeyword || undefined,
+        category: this.selectedCategory || undefined,
+        min: this.minPrice ?? undefined,
+        max: this.maxPrice ?? undefined,
+        sortBy: this.sortBy || 'id',
+        sortDirection: this.sortDirection || 'asc',
+        page: this.currentPage,
+        size: this.pageSize,
+      })
       .subscribe({
         next: (data) => {
           this.products = data.content;
@@ -174,15 +90,48 @@ export class ProductsComponent implements OnInit {
       });
   }
 
+  onSearchChange(term: any): void {
+    const value = typeof term === 'string' ? term : term.target.value;
+    if (value.length >= 1) {
+      this.searchTerms.next(value);
+    } else {
+      this.suggestions = [];
+      this.searchKeyword = '';
+      this.currentPage = 0;
+      this.fetchFilteredProducts();
+    }
+  }
+
+  selectSuggestion(suggestion: string): void {
+    this.searchKeyword = suggestion;
+    this.suggestions = [];
+    this.currentPage = 0;
+    this.fetchFilteredProducts();
+  }
+
+  onCategoryChange(): void {
+    this.currentPage = 0;
+    this.fetchFilteredProducts();
+  }
+
+  onPriceChange(): void {
+    this.currentPage = 0;
+    this.fetchFilteredProducts();
+  }
+
   changeSort(sortBy: string, sortDirection: string) {
     this.sortBy = sortBy;
     this.sortDirection = sortDirection;
     this.currentPage = 0;
-    this.loadSortedProducts();
+    this.fetchFilteredProducts();
   }
 
   goToPage(page: number) {
     this.currentPage = page;
-    this.fetchProducts(page);
+    this.fetchFilteredProducts();
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

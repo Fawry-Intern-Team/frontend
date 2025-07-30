@@ -34,24 +34,24 @@
           </p-menu>
 
           <button (click)="profileMenu.toggle($event)"
-            class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
 
             <!-- Profile Picture -->
             <p-avatar *ngIf="userProfilePicture; else fallback" [image]="userProfilePicture" size="normal"
-              shape="circle" styleClass="border-2 border-gray-200 hover:border-blue-300 transition">
+              shape="circle" styleClass="border-2 border-gray-200 hover:border-blue-300 transition cursor-pointer">
             </p-avatar>
 
             <ng-template #fallback>
               <p-avatar [label]="userInitials" size="normal" shape="circle"
-                styleClass="border-2 border-gray-200 hover:border-blue-300 transition">
+                styleClass="border-2 border-gray-200 hover:border-blue-300 transition cursor-pointer">
               </p-avatar>
             </ng-template>
 
-
             <!-- Dropdown Arrow -->
-            <i class="pi pi-chevron-down text-gray-500 text-xs"></i>
+            <i class="pi pi-chevron-down text-gray-500 text-xs cursor-pointer"></i>
           </button>
         </div>
+
 
       </div>
     </div>
