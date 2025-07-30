@@ -1,39 +1,69 @@
-<div
-    class="group border rounded-2xl p-4 bg-white shadow hover:shadow-2xl transition duration-300 flex flex-col relative overflow-hidden">
-
+<p-card 
+    class="group product-card overflow-hidden transition-all duration-300 hover:shadow-xl"
+    [style]="{'border-radius': '1rem', 'border': '1px solid #e5e7eb'}">
+    
     <!-- Product Image Container -->
-    <div class="relative">
-        <img [src]="product.imageUrl" [alt]="product.productName + ' image'"
-            class="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105" />
+    <div class="relative mb-4">
+        <p-image 
+            [src]="product.imageUrl || undefined" 
+            [alt]="(product.productName || '') + ' image'"
+            width="100%"
+            height="192"
+            class="rounded-lg overflow-hidden"
+            [style]="{'object-fit': 'cover'}"
+            [preview]="false">
+            <ng-template pTemplate="image">
+                <img 
+                    [src]="product.imageUrl || ''" 
+                    [alt]="(product.productName || '') + ' image'"
+                    class="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105" />
+            </ng-template>
+        </p-image>
 
-        <!-- Quick View bar -->
-        <div
-            class="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 opacity-0 group-hover:opacity-100 flex justify-between items-center px-3 py-2 transition-opacity duration-300 rounded-b-lg">
-
-            <i class="bi bi-bag text-xl text-gray-700 cursor-pointer hover:text-black"></i>
-            <span class="text-sm font-semibold text-blue-600 cursor-pointer">+ Quick View</span>
-            <i class="bi bi-eye text-xl text-gray-700 cursor-pointer hover:text-black"></i>
-        </div>
-
-        <!-- Top right heart icon -->
-        <div class="absolute top-2 right-2">
-            <i class="bi bi-heart text-gray-400 hover:text-red-500 text-2xl cursor-pointer"></i>
+        <!-- Quick View Overlay -->
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
+                    flex items-center justify-center transition-opacity duration-300 rounded-lg">
+            <p-button 
+                label="Quick View"
+                icon="pi pi-eye"
+                severity="secondary"
+                [raised]="true"
+                size="small"
+                class="bg-white text-gray-800 hover:bg-gray-50 font-medium shadow-lg">
+            </p-button>
         </div>
     </div>
 
     <!-- Product Info -->
-    <div class="flex-1 mt-3 text-center">
-        <h2 class="text-md font-semibold text-gray-800 mb-1 uppercase">{{ product.categoryName }}</h2>
-        <p class="text-lg font-bold text-gray-900 mb-1">{{ product.productName }}</p>
-        <p class="text-green-600 font-bold text-md mb-2">{{ product.price | currency }}</p>
-        <p class="text-gray-500 text-sm mt-1">
-            🏬 {{ product.storeName || 'Unknown Store' }}
-        </p>
+    <div class="flex-1 text-center space-y-3">
+        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+            {{ product.categoryName || 'Uncategorized' }}
+        </div>
+        
+        <h2 class="text-lg font-bold text-gray-900 leading-tight px-2">
+            {{ product.productName || 'Product Name' }}
+        </h2>
+        
+        <div class="text-2xl font-bold text-gray-900">
+            {{ (product.price | currency) || '' }}
+        </div>
+        
+        <div class="flex items-center justify-center text-gray-600 text-sm">
+            <i class="pi pi-shop text-gray-400 mr-2"></i>
+            <span>{{ product.storeName || 'Unknown Store' }}</span>
+        </div>
     </div>
 
     <!-- Add to Cart Button -->
-    <button (click)="addToCart()"
-        class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors duration-300">
-        Add to Cart
-    </button>
-</div>
+    <div class="mt-4">
+        <p-button 
+            (onClick)="addToCart()"
+            label="Add to Cart"
+            icon="pi pi-shopping-cart"
+            [style]="{'width': '100%'}"
+            severity="primary"
+            [raised]="true"
+            class="font-semibold transition-all duration-300 hover:shadow-md">
+        </p-button>
+    </div>
+</p-card>

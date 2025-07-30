@@ -56,7 +56,7 @@ export class ProductService {
       totalPages: number;
       totalElements: number;
       number: number;
-    }>(`${this.apiUrlProduct}`, { params ,withCredentials:true});
+    }>(`${this.apiUrlProduct}/search`, { params ,withCredentials:true});
   }
 
   getProductsByCategory(

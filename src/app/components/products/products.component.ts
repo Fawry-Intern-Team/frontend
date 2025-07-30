@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +12,12 @@ import { SliderModule } from 'primeng/slider';
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent, SliderModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ProductCardComponent,
+    SliderModule  // Keep your existing slider if you're using it elsewhere
+  ],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })
@@ -22,7 +28,9 @@ export class ProductsComponent implements OnInit {
   searchKeyword: string = '';
   suggestions: string[] = [];
   private searchTerms = new Subject<string>();
-
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   selectedCategory: string = '';
   categories: string[] = [];
 
