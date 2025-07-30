@@ -1,10 +1,10 @@
 @import url('primeicons/primeicons.css');
 @import url('primeflex/primeflex.css');
 
-body, html {
+/* body, html {
   background: #f6f8fc;
   font-family: 'Inter', sans-serif;
-}
+} */
 
 .login-container, .register-container {
   min-height: 100vh;

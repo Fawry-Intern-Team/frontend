@@ -7,13 +7,13 @@ import { MenuModule } from 'primeng/menu';
 import { AvatarModule } from 'primeng/avatar';
 import { User } from '../../models';
 import { AuthService } from '../../services';
-
-
-
+import { DrawerModule } from 'primeng/drawer';
+import { ButtonModule } from 'primeng/button';
+import { CartComponent } from '../../components/cart/cart.component';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MenuModule, AvatarModule],
+  imports: [CommonModule, RouterModule, MenuModule, AvatarModule, DrawerModule, ButtonModule,CartComponent],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
@@ -33,7 +33,7 @@ export class Navbar {
       this.userName = `${user.firstName} ${user.lastName}`.trim() || this.userName;
     }
   }
-  
+  visible: boolean = false;
   isLoggedIn = false;
   user !: User;
   // User profile data - replace with actual user service data

@@ -2,9 +2,6 @@ import { Routes } from '@angular/router';
 import { ProductsComponent } from './components/products/products.component';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CartComponent } from './components/cart/cart.component';
-
-import { PlaceOrder } from './pages/place-order/place-order';
 import { Payment } from './pages/payment/payment';
 import { Otp } from './pages/otp/otp';
 import { OrderSummary } from './pages/order-summary/order-summary';
@@ -16,7 +13,7 @@ import { RedirectIfAuthenticatedGuard } from './shared/guards/RedirectIfAuthenti
 import { RoleGuard } from './shared/guards/role.guard';
 import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 import { LoginSuccessComponent } from './pages';
-
+import { OrderDachboard } from './pages/order-dachboard/order-dachboard';
 export const routes: Routes = [
   ...AUTH_ROUTES, // public routes (login, register)
   { path: 'forbidden', component: ForbiddenComponent },
@@ -27,14 +24,18 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'products', pathMatch: 'full' },
       { path: 'products', component: ProductsComponent },
-      { path: 'cart', component: CartComponent },
-      { path: 'place-order', component: PlaceOrder },
       { path: 'payment', component: Payment },
       { path: 'otp', component: Otp },
       { path: 'order-summary', component: OrderSummary },
       {
         path: 'store/admin',
         component: AdminDashboardComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      {
+        path: 'admin/orders',
+        component: OrderDachboard,
         canActivate: [RoleGuard],
         data: { roles: ['ADMIN'] }
       },
@@ -49,8 +50,9 @@ export const routes: Routes = [
 
 
 
+
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

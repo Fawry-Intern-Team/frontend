@@ -7,17 +7,18 @@ import { v4 as uuidv4 } from 'uuid';
 import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-cart',
   standalone: true,
-   providers: [MessageService],
-  imports: [CommonModule, ButtonModule, ToastModule],
+  providers: [MessageService],
+  imports: [CommonModule, ButtonModule, ToastModule, FormsModule],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css'],
 })
 export class CartComponent {
-  constructor(public cartService: CartService,private orderService: OrderService,private router:Router,private messageService: MessageService) {}
-
+  constructor(public cartService: CartService, private orderService: OrderService, private router: Router, private messageService: MessageService) { }
+  couponCode: string = '';
   increaseQuantity(productName: string) {
     this.cartService.increaseQuantity(productName);
   }
@@ -33,38 +34,41 @@ export class CartComponent {
   clearCart() {
     this.cartService.clearCart();
   }
-  
+
   placeOrder() {
-    const orderProducts: OrderProduct[] = [
-      {
-        productId: 'c0c1ccc7-cf1a-4aeb-a5b9-cd14df4d067c',
-        storeId: '085ce62f-82c2-4266-9020-476ebaf2f884',
-        quantity: 2
-      }
-    ];
-    if(localStorage.getItem('orderIdempotencyKey') === null) {
+    
+    const orderProducts: OrderProduct[] = [];
+    this.cartService.getItems().forEach(item => {
+      orderProducts.push({
+        productId: item.product.productId,
+        storeId: item.product.storeId,
+        quantity: item.quantity
+      });
+    });
+    const totalAmount = this.cartService.getItems().reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    if (localStorage.getItem('orderIdempotencyKey') === null) {
       localStorage.setItem('orderIdempotencyKey', uuidv4());
     }
-    const idempotencyKey =localStorage.getItem('orderIdempotencyKey');
+    const idempotencyKey = localStorage.getItem('orderIdempotencyKey');
     const order: OrderRequest = {
       customerId: '99999999-9999-9999-9999-999999999999',
-      couponCode: '123456789',
+      couponCode: this.couponCode,
       idempotencyKey: idempotencyKey,
-      totalAmount: 200,
+      totalAmount: totalAmount,
       orderProducts
     };
-   
-    this.orderService.createOrder(order).subscribe({
-      next: (res) => {
-        localStorage.setItem('orderId', res.id);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order placed successfully!' });
-        setTimeout(() => {  
-          this.router.navigate(['/order-summary']);
-        }, 2000);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error });
-      }
-    });
+
+    // this.orderService.createOrder(order).subscribe({
+    //   next: (res) => {
+    //     localStorage.setItem('orderId', res.id);
+    //     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order placed successfully!' });
+    //     setTimeout(() => {
+    //       this.router.navigate(['/order-summary']);
+    //     }, 2000);
+    //   },
+    //   error: (err) => {
+    //     this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error });
+    //   }
+    // });
   }
 }

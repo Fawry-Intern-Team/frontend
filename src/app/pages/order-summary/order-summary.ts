@@ -9,6 +9,8 @@ import { MessageService } from 'primeng/api';
 import { OrderService, OrderResponse } from '../../services/order-service';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart.model';
+
+
 @Component({
   selector: 'app-order-summary',
   imports: [ReactiveFormsModule, CommonModule, ButtonModule, InputTextModule, ToastModule],
@@ -20,6 +22,7 @@ import { CartItem } from '../../models/cart.model';
 export class OrderSummary {
   order: OrderResponse | null = null;
   orderProducts: CartItem[] = [];
+
   constructor(private fb: FormBuilder, private router: Router, private messageService: MessageService, private orderService: OrderService,
               private cartService: CartService) { 
   }
@@ -37,16 +40,13 @@ export class OrderSummary {
       });
     } else {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No order found.' });
-      this.router.navigate(['/place-order']);
+      this.router.navigate(['/products']);
     }
   }
 
   getSubtotal(): number {
     if (!this.orderProducts) return 0;
-    return this.orderProducts.reduce(
-      (sum: number, p: any) => sum + 100 * p.quantity,
-      0
-    );
+    return this.orderProducts.reduce((total, item) => total + (item.product.price * item.quantity), 0);
   }
   onCheckout() {
     if (this.order?.status==='PROCESSING') {

@@ -9,8 +9,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Prevent retrying register or login endpoints
   const isAuthEndpoint = req.url.includes('/register') || req.url.includes('/login') || req.url.includes('/refresh');
-
-  return next(req).pipe(
+  const modifiedReq = req.clone({ withCredentials: true });
+  return next(modifiedReq).pipe(
     catchError(err => {
       if (err.status === 401 && !isAuthEndpoint) {
         console.log('[Interceptor] 401 caught for:', req.url);

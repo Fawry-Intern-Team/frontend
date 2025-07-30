@@ -17,16 +17,19 @@
 
       <!-- Right Side: Cart and Profile -->
       <div class="flex items-center space-x-4" *ngIf="isLoggedIn">
-
         <!-- Cart Icon -->
-        <a routerLink="/cart" class="relative text-2xl hover:text-blue-600 transition">
-          🛒
+        <div class="relative">
           <span *ngIf="cartService.getItems().length"
             class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[20px] text-center">
             {{ cartService.getItems().length }}
           </span>
-        </a>
 
+          <p-drawer [(visible)]="visible" header=" 🛒 Your Cart" position="right" styleClass="!w-full md:!w-80 lg:!w-[40rem]">
+            <app-cart />
+          </p-drawer>
+          <button pButton type="button" icon="pi pi-shopping-cart" class="p-button-rounded p-button-secondary "
+            (click)="visible = true"></button>
+        </div>
         <!-- Profile Dropdown -->
         <div class="relative">
           <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" [appendTo]="'body'"
@@ -50,10 +53,12 @@
             <!-- Dropdown Arrow -->
             <i class="pi pi-chevron-down text-gray-500 text-xs cursor-pointer"></i>
           </button>
+
         </div>
 
 
       </div>
+
     </div>
   </div>
 </nav>

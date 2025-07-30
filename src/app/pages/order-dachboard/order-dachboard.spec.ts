@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlaceOrder } from './place-order';
+import { OrderDachboard } from './order-dachboard';
 
-describe('PlaceOrder', () => {
-  let component: PlaceOrder;
-  let fixture: ComponentFixture<PlaceOrder>;
+describe('OrderDachboard', () => {
+  let component: OrderDachboard;
+  let fixture: ComponentFixture<OrderDachboard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlaceOrder]
+      imports: [OrderDachboard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlaceOrder);
+    fixture = TestBed.createComponent(OrderDachboard);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
