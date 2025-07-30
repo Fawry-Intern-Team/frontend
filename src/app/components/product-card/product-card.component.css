@@ -1,32 +1,37 @@
-.card {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    background-color: #f9f9f9;
-    /* ✅ لون خلفية البطاقة */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
+/* Custom styles to enhance PrimeNG components */
+.product-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    /* ✅ Hover effect */
+.product-card:hover {
+  transform: translateY(-4px);
 }
 
-.card h3,
-.card p {
-    color: #333;
-    /* ✅ لون الكتابة */
+/* Button enhancements */
+.product-card ::ng-deep .p-button {
+  transition: all 0.3s ease;
 }
 
-.card img {
-    width: 100%;
-    /* ✅ صورة ممتدة بعرض البطاقة */
-    height: 300px;
-    /* ✅ ارتفاع ثابت */
-    object-fit: cover;
-    border-radius: 4px;
+.product-card ::ng-deep .p-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Card styling */
+.product-card ::ng-deep .p-card {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.product-card:hover ::ng-deep .p-card {
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.product-card ::ng-deep .p-card-body {
+  padding: 1.5rem;
+}
+
+/* Image container enhancements */
+.product-card ::ng-deep .p-image {
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
