@@ -8,7 +8,6 @@ import { CardModule } from 'primeng/card';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { TreeTableModule } from 'primeng/treetable';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { ToastModule } from 'primeng/toast';
@@ -16,6 +15,8 @@ import { MessageService } from 'primeng/api';
 import { Store } from '../../models/store.model';
 import { Stock } from '../../models/stock.model';
 import { StockHistory } from '../../models/stock-history.model';
+import { StoreService } from '../../services/store.service';
+import { StockService, StockOperation } from '../../services/stock.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,19 +40,23 @@ import { StockHistory } from '../../models/stock-history.model';
   styleUrls: ['./admin-dashboard.css'],
 })
 export class AdminDashboardComponent implements OnInit {
+  // UI State
   searchKeyword: string = '';
-  stores: Store[] = [];
-  stocks: Stock[] = [];
-  stockHistory: StockHistory[] = [];
-  showAddDialog: boolean = false;
   showStocks: boolean = false;
   showStockHistory: boolean = false;
   showAddStockDialog: boolean = false;
   showConsumeStockDialog: boolean = false;
   showCreateStockDialog: boolean = false;
   searchedLocation: string = '';
+
+  // Data
+  stores: Store[] = [];
+  stocks: Stock[] = [];
+  stockHistory: StockHistory[] = [];
   selectedStock: Stock | null = null;
   selectedStoreForStock: Store | null = null;
+
+  // Loading states
   isLoadingStores: boolean = false;
   isLoadingStocks: boolean = false;
   isLoadingHistory: boolean = false;
@@ -60,7 +65,7 @@ export class AdminDashboardComponent implements OnInit {
   isConsumingStock: boolean = false;
   isCreatingStock: boolean = false;
 
-  // Stock management forms
+  // Forms
   addStockForm = {
     storeId: '',
     productId: '',
@@ -87,70 +92,57 @@ export class AdminDashboardComponent implements OnInit {
   };
 
   constructor(
-    private http: HttpClient,
+    private storeService: StoreService,
+    private stockService: StockService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.fetchStores();
   }
 
+  // Store Management
   fetchStores() {
     this.isLoadingStores = true;
-    this.http.get<Store[]>('http://localhost:8087/api/store').subscribe({
-      next: (data) => {
-        this.stores = data;
+    this.storeService.getStores().subscribe({
+      next: (stores) => {
+        this.stores = stores;
         this.isLoadingStores = false;
         this.showSuccessMessage('Stores loaded successfully');
       },
-      error: (err: HttpErrorResponse) => {
-        console.error('Failed to load stores', err);
+      error: (error) => {
+        console.error('Failed to load stores', error);
         this.isLoadingStores = false;
-        this.showErrorMessage('Failed to load stores');
+        this.showErrorMessage(error.message || 'Failed to load stores');
       },
     });
   }
 
   createStore() {
-    if (!this.newStore.location.trim()) {
-      this.showWarningMessage('Please enter a store location');
-      return;
-    }
-
     this.isCreatingStore = true;
-    this.http
-      .post('http://localhost:8087/api/store/create', this.newStore)
-      .subscribe({
-        next: () => {
-          this.fetchStores();
-          this.showAddDialog = false;
-          this.newStore.location = '';
-          this.isCreatingStore = false;
-          this.showSuccessMessage('Store created successfully');
-        },
-        error: (err: HttpErrorResponse) => {
-          console.error('Error creating store:', err);
-          this.isCreatingStore = false;
-          
-          if (err.status === 400 && err.error?.message) {
-            this.showErrorMessage(err.error.message);
-          } else {
-            this.showErrorMessage('Failed to create store');
-          }
-        },
-      });
+    this.storeService.createStore(this.newStore).subscribe({
+      next: () => {
+        this.fetchStores();
+        this.newStore.location = '';
+        this.isCreatingStore = false;
+        this.showSuccessMessage('Store created successfully');
+      },
+      error: (error) => {
+        console.error('Error creating store:', error);
+        this.isCreatingStore = false;
+        this.showErrorMessage(error.message || 'Failed to create store');
+      },
+    });
   }
 
+  // Stock Search and Management
   searchStocksByLocation() {
     if (!this.searchKeyword.trim()) {
       this.showWarningMessage('Please enter a store location to search');
       return;
     }
 
-    // Find store by location (case-insensitive partial match)
-    const store = this.stores.find(s => 
-      s.location.toLowerCase().includes(this.searchKeyword.toLowerCase())
-    );
+    const store = this.storeService.findStoreByLocation(this.stores, this.searchKeyword);
 
     if (!store) {
       this.stocks = [];
@@ -161,31 +153,30 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    this.selectedStoreForStock = store; // Track the selected store
-
-    // Fetch stocks for the found store
+    this.selectedStoreForStock = store;
     this.isLoadingStocks = true;
-    this.http.get<Stock[]>(`http://localhost:8087/api/store/${store.id}/stock`).subscribe({
-      next: (data) => {
-        this.stocks = data;
+
+    this.stockService.getStocksByStoreId(store.id).subscribe({
+      next: (stocks) => {
+        this.stocks = stocks;
         this.showStocks = true;
         this.searchedLocation = this.searchKeyword;
         this.isLoadingStocks = false;
-        
-        if (data.length === 0) {
+
+        if (stocks.length === 0) {
           this.showInfoMessage(`No stocks found for store: "${store.location}"`);
         } else {
-          this.showSuccessMessage(`Found ${data.length} stock item(s) for "${store.location}"`);
+          this.showSuccessMessage(`Found ${stocks.length} stock item(s) for "${store.location}"`);
         }
       },
-      error: (err: HttpErrorResponse) => {
-        console.error('Failed to load stocks for store:', store.id, err);
+      error: (error) => {
+        console.error('Failed to load stocks for store:', store.id, error);
         this.stocks = [];
         this.showStocks = true;
         this.searchedLocation = this.searchKeyword;
         this.selectedStoreForStock = null;
         this.isLoadingStocks = false;
-        this.showErrorMessage('Failed to load stocks for this store');
+        this.showErrorMessage(error.message || 'Failed to load stocks for this store');
       },
     });
   }
@@ -195,32 +186,30 @@ export class AdminDashboardComponent implements OnInit {
     this.stocks = [];
     this.searchKeyword = '';
     this.searchedLocation = '';
-    this.hideStockHistory(); // Also hide history when hiding stocks
+    this.hideStockHistory();
   }
 
-  // Stock History Methods
+  // Stock History
   viewStockHistory(stock: Stock) {
     this.selectedStock = stock;
     this.isLoadingHistory = true;
     this.showStockHistory = true;
 
-    this.http.get<StockHistory[]>(`http://localhost:8087/api/store/${stock.storeId}/history`).subscribe({
-      next: (data) => {
-        // Filter history for the specific product
-        this.stockHistory = data.filter(history => history.productId === stock.productId);
+    this.stockService.getStockHistory(stock.storeId, stock.productId).subscribe({
+      next: (history) => {
+        this.stockHistory = history;
         this.isLoadingHistory = false;
-        
-        if (this.stockHistory.length === 0) {
-          this.showInfoMessage(`No history found for this stock item`);
+        if (history.length === 0) {
+          this.showInfoMessage('No history found for this stock item');
         } else {
-          this.showSuccessMessage(`Found ${this.stockHistory.length} history record(s)`);
+          this.showSuccessMessage(`Found ${history.length} history record(s)`);
         }
       },
-      error: (err: HttpErrorResponse) => {
-        console.error('Failed to load stock history:', err);
+      error: (error) => {
+        console.error('Failed to load stock history:', error);
         this.stockHistory = [];
         this.isLoadingHistory = false;
-        this.showErrorMessage('Failed to load stock history');
+        this.showErrorMessage(error.message || 'Failed to load stock history');
       },
     });
   }
@@ -231,24 +220,7 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedStock = null;
   }
 
-  formatDateTime(dateTimeString: string): string {
-    const date = new Date(dateTimeString);
-    return date.toLocaleString();
-  }
-
-  getQuantityChangeClass(quantityChange: number): string {
-    if (quantityChange > 0) return 'text-green-600 font-semibold';
-    if (quantityChange < 0) return 'text-red-600 font-semibold';
-    return 'text-gray-600';
-  }
-
-  getQuantityChangeIcon(quantityChange: number): string {
-    if (quantityChange > 0) return 'pi pi-arrow-up';
-    if (quantityChange < 0) return 'pi pi-arrow-down';
-    return 'pi pi-minus';
-  }
-
-  // Stock Management Methods
+  // Dialog Management
   openAddStockDialog(stock?: Stock) {
     if (stock) {
       this.addStockForm = {
@@ -295,6 +267,109 @@ export class AdminDashboardComponent implements OnInit {
     this.resetCreateStockForm();
   }
 
+  // Stock Operations
+  addStock() {
+    const operation: StockOperation = {
+      storeId: this.addStockForm.storeId,
+      productId: this.addStockForm.productId,
+      quantity: this.addStockForm.quantity,
+      reason: this.addStockForm.reason
+    };
+
+    this.isAddingStock = true;
+    this.stockService.addStock(operation, this.selectedStock?.quantity).subscribe({
+      next: () => {
+        this.isAddingStock = false;
+        //this.viewStockHistory(this.selectedStock!);
+        this.closeAddStockDialog();
+        this.showSuccessMessage(`Successfully added ${operation.quantity} units to stock`);
+        this.refreshCurrentStocks();
+        if (this.showStockHistory && this.selectedStock) {
+          this.viewStockHistory(this.selectedStock);
+        }
+      },
+      error: (error) => {
+        console.error('Error adding stock:', error);
+        this.isAddingStock = false;
+        this.showErrorMessage(error.message || 'Failed to add stock');
+      },
+    });
+  }
+
+  consumeStock() {
+    const operation: StockOperation = {
+      storeId: this.consumeStockForm.storeId,
+      productId: this.consumeStockForm.productId,
+      quantity: this.consumeStockForm.quantity,
+      reason: this.consumeStockForm.reason
+    };
+
+    this.isConsumingStock = true;
+    this.stockService.consumeStock(operation, this.selectedStock?.quantity).subscribe({
+      next: () => {
+        this.isConsumingStock = false;
+        this.viewStockHistory(this.selectedStock!);
+        this.closeConsumeStockDialog();
+        this.showSuccessMessage(`Successfully consumed ${operation.quantity} units from stock`);
+        this.refreshCurrentStocks();
+        // Refresh history if it's currently being viewed
+        if (this.showStockHistory && this.selectedStock) {
+          this.viewStockHistory(this.selectedStock);
+        }
+      },
+      error: (error) => {
+        console.error('Error consuming stock:', error);
+        this.isConsumingStock = false;
+        this.showErrorMessage(error.message || 'Failed to consume stock');
+      },
+    });
+  }
+
+  createStock() {
+    const operation: StockOperation = {
+      storeId: this.createStockForm.storeId,
+      productId: this.createStockForm.productId,
+      quantity: this.createStockForm.quantity,
+      reason: this.createStockForm.reason
+    };
+
+    this.isCreatingStock = true;
+    this.stockService.createStock(operation).subscribe({
+      next: () => {
+        this.isCreatingStock = false;
+        this.closeCreateStockDialog();
+        this.showSuccessMessage(`Successfully created stock with ${operation.quantity} units`);
+
+        // Refresh stocks if currently viewing the same store
+        if (this.showStocks && this.selectedStoreForStock && this.selectedStoreForStock.id === operation.storeId) {
+          this.refreshCurrentStocks();
+        }
+      },
+      error: (error) => {
+        console.error('Error creating stock:', error);
+        this.isCreatingStock = false;
+        this.showErrorMessage(error.message || 'Failed to create stock');
+      },
+    });
+  }
+
+  refreshCurrentStocks() {
+    if (this.selectedStoreForStock) {
+      this.isLoadingStocks = true;
+      this.stockService.getStocksByStoreId(this.selectedStoreForStock.id).subscribe({
+        next: (stocks) => {
+          this.stocks = stocks;
+          this.isLoadingStocks = false;
+        },
+        error: (error) => {
+          console.error('Failed to refresh stocks:', error);
+          this.isLoadingStocks = false;
+        },
+      });
+    }
+  }
+
+  // Form Reset Methods
   resetAddStockForm() {
     this.addStockForm = {
       storeId: '',
@@ -322,166 +397,32 @@ export class AdminDashboardComponent implements OnInit {
     };
   }
 
-  addStock() {
-    if (!this.addStockForm.storeId || !this.addStockForm.productId || this.addStockForm.quantity <= 0) {
-      this.showWarningMessage('Please fill all required fields with valid values');
-      return;
-    }
-
-    this.isAddingStock = true;
-    const stockDto = {
-      storeId: this.addStockForm.storeId,
-      productId: this.addStockForm.productId,
-      quantity: this.addStockForm.quantity,
-      Reason: this.addStockForm.reason || 'Stock addition'
-    };
-
-    this.http.post('http://localhost:8087/api/store/stock/add', stockDto).subscribe({
-      next: () => {
-        this.isAddingStock = false;
-        this.closeAddStockDialog();
-        this.showSuccessMessage(`Successfully added ${stockDto.quantity} units to stock`);
-        
-        // Refresh stocks if currently viewing
-        if (this.showStocks && this.selectedStoreForStock) {
-          this.refreshCurrentStocks();
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Error adding stock:', err);
-        this.isAddingStock = false;
-        
-        if (err.status === 404) {
-          this.showErrorMessage('Stock not found. Please create the stock first.');
-        } else if (err.error?.message) {
-          this.showErrorMessage(err.error.message);
-        } else {
-          this.showErrorMessage('Failed to add stock');
-        }
-      },
-    });
-  }
-
-  consumeStock() {
-    if (!this.consumeStockForm.storeId || !this.consumeStockForm.productId || this.consumeStockForm.quantity <= 0) {
-      this.showWarningMessage('Please fill all required fields with valid values');
-      return;
-    }
-
-    if (this.selectedStock && this.consumeStockForm.quantity > this.selectedStock.quantity) {
-      this.showWarningMessage(`Cannot consume ${this.consumeStockForm.quantity} units. Only ${this.selectedStock.quantity} available.`);
-      return;
-    }
-
-    this.isConsumingStock = true;
-    const stockDto = {
-      storeId: this.consumeStockForm.storeId,
-      productId: this.consumeStockForm.productId,
-      quantity: this.consumeStockForm.quantity,
-      Reason: this.consumeStockForm.reason || 'Stock consumption'
-    };
-
-    this.http.post('http://localhost:8087/api/store/stock/consume', stockDto).subscribe({
-      next: () => {
-        this.isConsumingStock = false;
-        this.closeConsumeStockDialog();
-        this.showSuccessMessage(`Successfully consumed ${stockDto.quantity} units from stock`);
-        
-        // Refresh stocks if currently viewing
-        if (this.showStocks && this.selectedStoreForStock) {
-          this.refreshCurrentStocks();
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Error consuming stock:', err);
-        this.isConsumingStock = false;
-        
-        if (err.status === 400 && err.error?.message?.includes('Not enough stock')) {
-          this.showErrorMessage('Not enough stock available for consumption');
-        } else if (err.error?.message) {
-          this.showErrorMessage(err.error.message);
-        } else {
-          this.showErrorMessage('Failed to consume stock');
-        }
-      },
-    });
-  }
-
-  createStock() {
-    if (!this.createStockForm.storeId || !this.createStockForm.productId || this.createStockForm.quantity <= 0) {
-      this.showWarningMessage('Please fill all required fields with valid values');
-      return;
-    }
-
-    this.isCreatingStock = true;
-    const stockDto = {
-      storeId: this.createStockForm.storeId,
-      productId: this.createStockForm.productId,
-      quantity: this.createStockForm.quantity,
-      Reason: this.createStockForm.reason || 'Initial stock creation'
-    };
-
-    this.http.post('http://localhost:8087/api/store/stock/create', stockDto).subscribe({
-      next: () => {
-        this.isCreatingStock = false;
-        this.closeCreateStockDialog();
-        this.showSuccessMessage(`Successfully created stock with ${stockDto.quantity} units`);
-        
-        // Refresh stocks if currently viewing the same store
-        if (this.showStocks && this.selectedStoreForStock && this.selectedStoreForStock.id === stockDto.storeId) {
-          this.refreshCurrentStocks();
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Error creating stock:', err);
-        this.isCreatingStock = false;
-        
-        if (err.status === 400 && err.error?.message?.includes('already created')) {
-          this.showErrorMessage('Stock already exists for this store and product combination');
-        } else if (err.error?.message) {
-          this.showErrorMessage(err.error.message);
-        } else {
-          this.showErrorMessage('Failed to create stock');
-        }
-      },
-    });
-  }
-
-  refreshCurrentStocks() {
-    if (this.selectedStoreForStock) {
-      this.isLoadingStocks = true;
-      this.http.get<Stock[]>(`http://localhost:8087/api/store/${this.selectedStoreForStock.id}/stock`).subscribe({
-        next: (data) => {
-          this.stocks = data;
-          this.isLoadingStocks = false;
-        },
-        error: (err: HttpErrorResponse) => {
-          console.error('Failed to refresh stocks:', err);
-          this.isLoadingStocks = false;
-        },
-      });
-    }
-  }
-
-  // Helper methods for template
+  // Template Helper Methods
   getStoreLocationById(storeId: string): string {
-    const store = this.stores.find(s => s.id === storeId);
-    return store?.location || 'Unknown Store';
+    return this.storeService.getStoreLocationById(this.stores, storeId);
   }
 
   getStockStatus(quantity: number): string {
-    if (quantity === 0) return 'Out of Stock';
-    if (quantity < 10) return 'Low Stock';
-    return 'In Stock';
+    return this.stockService.getStockStatus(quantity).status;
   }
 
   getStockStatusClass(quantity: number): string {
-    if (quantity === 0) return 'status-badge status-out-of-stock';
-    if (quantity < 10) return 'status-badge status-low-stock';
-    return 'status-badge status-in-stock';
+    return this.stockService.getStockStatus(quantity).statusClass;
   }
 
-  // Toast message methods
+  formatDateTime(dateTimeString: string): string {
+    return this.stockService.formatDateTime(dateTimeString);
+  }
+
+  getQuantityChangeClass(quantityChange: number): string {
+    return this.stockService.getQuantityChangeClass(quantityChange);
+  }
+
+  getQuantityChangeIcon(quantityChange: number): string {
+    return this.stockService.getQuantityChangeIcon(quantityChange);
+  }
+
+  // Toast Message Methods
   showSuccessMessage(message: string) {
     this.messageService.add({
       severity: 'success',
