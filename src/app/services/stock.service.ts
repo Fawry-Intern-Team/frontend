@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Stock } from '../models/stock.model';
 import { StockHistory } from '../models/stock-history.model';
+import { PageRequest, PageResponse } from '../models/pagination.model';
 
 export interface StockOperation {
+    
     storeId: string;
     productId: string;
     quantity: number;
@@ -26,8 +28,26 @@ export class StockService {
     constructor(private http: HttpClient) {}
 
     getStocksByStoreId(storeId: string): Observable<Stock[]> {
-        return this.http.get<Stock[]>(`${this.apiUrl}/stock?storeId=${storeId}`, { withCredentials: true })
-            .pipe(catchError(this.handleError));
+        const params = new HttpParams().set('storeId', storeId);
+        return this.http.get<Stock[]>(`${this.apiUrl}/stock`, { 
+            params, 
+            withCredentials: true 
+        }).pipe(catchError(this.handleError));
+    }
+
+    getStocksByStoreIdPaginated(storeId: string, pageRequest: PageRequest): Observable<PageResponse<Stock>> {
+        let params = new HttpParams()
+            .set('storeId', storeId)
+            .set('paginated', 'true')
+            .set('page', (pageRequest.page || 0).toString())
+            .set('size', (pageRequest.size || 10).toString())
+            .set('sortBy', pageRequest.sortBy || 'productId')
+            .set('sortDirection', pageRequest.sortDirection || 'asc');
+
+        return this.http.get<PageResponse<Stock>>(`${this.apiUrl}/stock`, { 
+            params, 
+            withCredentials: true 
+        }).pipe(catchError(this.handleError));
     }
 
     getStockHistory(storeId: string, productId?: string): Observable<StockHistory[]> {
@@ -38,7 +58,27 @@ export class StockService {
             );
     }
 
-    addStock(stockOperation: StockOperation, availableQuantity?: number): Observable<any> {
+    getStockHistoryPaginated(storeId: string, pageRequest: PageRequest, productId?: string): Observable<PageResponse<StockHistory>> {
+        let params = new HttpParams()
+            .set('paginated', 'true')
+            .set('page', (pageRequest.page || 0).toString())
+            .set('size', (pageRequest.size || 10).toString())
+            .set('sortBy', pageRequest.sortBy || 'timestamp')
+            .set('sortDirection', pageRequest.sortDirection || 'desc');
+
+        return this.http.get<PageResponse<StockHistory>>(`${this.apiUrl}/${storeId}/history`, { 
+            params, 
+            withCredentials: true 
+        }).pipe(
+            map(page => productId ? {
+                ...page,
+                content: page.content.filter(h => h.productId === productId)
+            } : page),
+            catchError(this.handleError)
+        );
+    }
+
+    addStock(stockOperation: StockOperation): Observable<any> {
         if (!this.validateStockOperation(stockOperation)) {
             return throwError(() => new Error('Invalid stock operation data'));
         }
@@ -46,10 +86,7 @@ export class StockService {
         if (stockOperation.quantity <= 0) {
             return throwError(() => new Error('Quantity must be greater than 0'));
         }
-        
-        if (availableQuantity !== undefined && stockOperation.quantity > availableQuantity) {
-            return throwError(() => new Error(`Cannot add ${stockOperation.quantity} units. Only ${availableQuantity} available.`));
-        }
+
         const stockDto = {
             ...stockOperation,
             reason: stockOperation.reason || 'Stock addition'
@@ -148,10 +185,8 @@ export class StockService {
         let errorMessage = 'An unknown error occurred';
         
         if (error.error instanceof ErrorEvent) {
-            // Client-side error
             errorMessage = error.error.message;
         } else {
-            // Server-side error
             if (error.status === 400) {
                 if (error.error?.message?.includes('Not enough stock')) {
                     errorMessage = 'Not enough stock available for consumption';

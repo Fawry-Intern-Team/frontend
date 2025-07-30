@@ -1,3 +1,4 @@
+// admin-dashboard.component.ts - Fixed with Consistent 5-Row Pagination
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -11,10 +12,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TreeTableModule } from 'primeng/treetable';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { ToastModule } from 'primeng/toast';
+import { PaginatorModule } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
 import { Store } from '../../models/store.model';
 import { Stock } from '../../models/stock.model';
 import { StockHistory } from '../../models/stock-history.model';
+import { PageRequest, PageResponse } from '../../models/pagination.model';
 import { StoreService } from '../../services/store.service';
 import { StockService, StockOperation } from '../../services/stock.service';
 
@@ -34,6 +37,7 @@ import { StockService, StockOperation } from '../../services/stock.service';
     TreeTableModule,
     FloatLabelModule,
     ToastModule,
+    PaginatorModule,
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.html',
@@ -48,14 +52,26 @@ export class AdminDashboardComponent implements OnInit {
   showConsumeStockDialog: boolean = false;
   showCreateStockDialog: boolean = false;
   searchedLocation: string = '';
-
+  
   // Data
   stores: Store[] = [];
   stocks: Stock[] = [];
   stockHistory: StockHistory[] = [];
   selectedStock: Stock | null = null;
   selectedStoreForStock: Store | null = null;
-
+  
+  // Pagination Data
+  storesPage: PageResponse<Store> | null = null;
+  stocksPage: PageResponse<Stock> | null = null;
+  stockHistoryPage: PageResponse<StockHistory> | null = null;
+  
+  // Pagination Settings - Fixed: Always use 5 rows per page
+  usePagination = true;
+  storesPaginationEnabled = true;
+  stocksPaginationEnabled = true;
+  historyPaginationEnabled = true;
+  defaultPageSize = 5; // Fixed: Consistent page size
+  
   // Loading states
   isLoadingStores: boolean = false;
   isLoadingStocks: boolean = false;
@@ -101,14 +117,37 @@ export class AdminDashboardComponent implements OnInit {
     this.fetchStores();
   }
 
-  // Store Management
+  // Store Management - Fixed
   fetchStores() {
     this.isLoadingStores = true;
-    this.storeService.getStores().subscribe({
-      next: (stores) => {
-        this.stores = stores;
+    
+    if (this.storesPaginationEnabled) {
+      // Fixed: Always use defaultPageSize (5)
+      this.fetchStoresPaginated({ page: 0, size: this.defaultPageSize });
+    } else {
+      this.storeService.getStores().subscribe({
+        next: (stores) => {
+          this.stores = stores;
+          this.isLoadingStores = false;
+          this.showSuccessMessage('Stores loaded successfully');
+        },
+        error: (error) => {
+          console.error('Failed to load stores', error);
+          this.isLoadingStores = false;
+          this.showErrorMessage(error.message || 'Failed to load stores');
+        },
+      });
+    }
+  }
+
+  fetchStoresPaginated(pageRequest: PageRequest) {
+    this.isLoadingStores = true;
+    this.storeService.getStoresPaginated(pageRequest).subscribe({
+      next: (storesPage) => {
+        this.storesPage = storesPage;
+        this.stores = storesPage.content;
         this.isLoadingStores = false;
-        this.showSuccessMessage('Stores loaded successfully');
+        this.showSuccessMessage(`Loaded page ${storesPage.number + 1} of ${storesPage.totalPages}`);
       },
       error: (error) => {
         console.error('Failed to load stores', error);
@@ -116,6 +155,21 @@ export class AdminDashboardComponent implements OnInit {
         this.showErrorMessage(error.message || 'Failed to load stores');
       },
     });
+  }
+
+  onStoresPageChange(event: any) {
+    const pageRequest: PageRequest = {
+      page: event.page,
+      size: event.rows || this.defaultPageSize, // Fixed: Fallback to defaultPageSize
+      sortBy: 'location',
+      sortDirection: 'asc'
+    };
+    this.fetchStoresPaginated(pageRequest);
+  }
+
+  toggleStoresPagination() {
+    this.storesPaginationEnabled = !this.storesPaginationEnabled;
+    this.fetchStores();
   }
 
   createStore() {
@@ -135,7 +189,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // Stock Search and Management
+  // Stock Search and Management - Fixed
   searchStocksByLocation() {
     if (!this.searchKeyword.trim()) {
       this.showWarningMessage('Please enter a store location to search');
@@ -143,7 +197,7 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     const store = this.storeService.findStoreByLocation(this.stores, this.searchKeyword);
-
+    
     if (!store) {
       this.stocks = [];
       this.showStocks = true;
@@ -154,31 +208,83 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     this.selectedStoreForStock = store;
+    this.fetchStocksForStore(store.id);
+  }
+
+  // Fixed: Added proper default pagination handling
+  fetchStocksForStore(storeId: string, pageRequest?: PageRequest) {
     this.isLoadingStocks = true;
+    
+    if (this.stocksPaginationEnabled) {
+      // Fixed: Use provided pageRequest or create default one
+      const finalPageRequest = pageRequest || {
+        page: 0,
+        size: this.defaultPageSize,
+        sortBy: 'productId',
+        sortDirection: 'asc'
+      };
 
-    this.stockService.getStocksByStoreId(store.id).subscribe({
-      next: (stocks) => {
-        this.stocks = stocks;
-        this.showStocks = true;
-        this.searchedLocation = this.searchKeyword;
-        this.isLoadingStocks = false;
+      this.stockService.getStocksByStoreIdPaginated(storeId, finalPageRequest).subscribe({
+        next: (stocksPage) => {
+          this.stocksPage = stocksPage;
+          this.stocks = stocksPage.content;
+          this.showStocks = true;
+          this.searchedLocation = this.searchKeyword;
+          this.isLoadingStocks = false;
+          this.showSuccessMessage(`Page ${stocksPage.number + 1} of ${stocksPage.totalPages} loaded`);
+        },
+        error: (error) => {
+          this.handleStocksFetchError(error);
+        },
+      });
+    } else {
+      this.stockService.getStocksByStoreId(storeId).subscribe({
+        next: (stocks) => {
+          this.stocks = stocks;
+          this.showStocks = true;
+          this.searchedLocation = this.searchKeyword;
+          this.isLoadingStocks = false;
 
-        if (stocks.length === 0) {
-          this.showInfoMessage(`No stocks found for store: "${store.location}"`);
-        } else {
-          this.showSuccessMessage(`Found ${stocks.length} stock item(s) for "${store.location}"`);
-        }
-      },
-      error: (error) => {
-        console.error('Failed to load stocks for store:', store.id, error);
-        this.stocks = [];
-        this.showStocks = true;
-        this.searchedLocation = this.searchKeyword;
-        this.selectedStoreForStock = null;
-        this.isLoadingStocks = false;
-        this.showErrorMessage(error.message || 'Failed to load stocks for this store');
-      },
-    });
+          if (stocks.length === 0) {
+            this.showInfoMessage(`No stocks found for store: "${this.selectedStoreForStock?.location}"`);
+          } else {
+            this.showSuccessMessage(`Found ${stocks.length} stock item(s)`);
+          }
+        },
+        error: (error) => {
+          this.handleStocksFetchError(error);
+        },
+      });
+    }
+  }
+
+  onStocksPageChange(event: any) {
+    if (this.selectedStoreForStock) {
+      const pageRequest: PageRequest = {
+        page: event.page,
+        size: event.rows || this.defaultPageSize, // Fixed: Fallback to defaultPageSize
+        sortBy: 'productId',
+        sortDirection: 'asc'
+      };
+      this.fetchStocksForStore(this.selectedStoreForStock.id, pageRequest);
+    }
+  }
+
+  toggleStocksPagination() {
+    this.stocksPaginationEnabled = !this.stocksPaginationEnabled;
+    if (this.selectedStoreForStock) {
+      this.fetchStocksForStore(this.selectedStoreForStock.id);
+    }
+  }
+
+  private handleStocksFetchError(error: any) {
+    console.error('Failed to load stocks', error);
+    this.stocks = [];
+    this.showStocks = true;
+    this.searchedLocation = this.searchKeyword;
+    this.selectedStoreForStock = null;
+    this.isLoadingStocks = false;
+    this.showErrorMessage(error.message || 'Failed to load stocks for this store');
   }
 
   hideStocks() {
@@ -186,37 +292,89 @@ export class AdminDashboardComponent implements OnInit {
     this.stocks = [];
     this.searchKeyword = '';
     this.searchedLocation = '';
+    this.stocksPage = null;
     this.hideStockHistory();
   }
 
-  // Stock History
+  // Stock History - Fixed
   viewStockHistory(stock: Stock) {
     this.selectedStock = stock;
+    this.fetchStockHistory(stock.id, stock.productId);
+  }
+
+  // Fixed: Added proper default pagination handling
+  fetchStockHistory(storeId: string, productId?: string, pageRequest?: PageRequest) {
     this.isLoadingHistory = true;
     this.showStockHistory = true;
 
-    this.stockService.getStockHistory(stock.storeId, stock.productId).subscribe({
-      next: (history) => {
-        this.stockHistory = history;
-        this.isLoadingHistory = false;
-        if (history.length === 0) {
-          this.showInfoMessage('No history found for this stock item');
-        } else {
-          this.showSuccessMessage(`Found ${history.length} history record(s)`);
-        }
-      },
-      error: (error) => {
-        console.error('Failed to load stock history:', error);
-        this.stockHistory = [];
-        this.isLoadingHistory = false;
-        this.showErrorMessage(error.message || 'Failed to load stock history');
-      },
-    });
+    if (this.historyPaginationEnabled) {
+      // Fixed: Use provided pageRequest or create default one
+      const finalPageRequest = pageRequest || {
+        page: 0,
+        size: this.defaultPageSize,
+        sortBy: 'timestamp',
+        sortDirection: 'desc'
+      };
+
+      this.stockService.getStockHistoryPaginated(storeId, finalPageRequest, productId).subscribe({
+        next: (historyPage) => {
+          this.stockHistoryPage = historyPage;
+          this.stockHistory = historyPage.content;
+          this.isLoadingHistory = false;
+          this.showSuccessMessage(`History page ${historyPage.number + 1} of ${historyPage.totalPages} loaded`);
+        },
+        error: (error) => {
+          this.handleHistoryFetchError(error);
+        },
+      });
+    } else {
+      this.stockService.getStockHistory(storeId, productId).subscribe({
+        next: (history) => {
+          this.stockHistory = history;
+          this.isLoadingHistory = false;
+          if (history.length === 0) {
+            this.showInfoMessage('No history found for this stock item');
+          } else {
+            this.showSuccessMessage(`Found ${history.length} history record(s)`);
+          }
+        },
+        error: (error) => {
+          this.handleHistoryFetchError(error);
+        },
+      });
+    }
+  }
+
+  onHistoryPageChange(event: any) {
+    if (this.selectedStock) {
+      const pageRequest: PageRequest = {
+        page: event.page,
+        size: event.rows || this.defaultPageSize, // Fixed: Fallback to defaultPageSize
+        sortBy: 'timestamp',
+        sortDirection: 'desc'
+      };
+      this.fetchStockHistory(this.selectedStock.id, this.selectedStock.productId, pageRequest);
+    }
+  }
+
+  toggleHistoryPagination() {
+    this.historyPaginationEnabled = !this.historyPaginationEnabled;
+    if (this.selectedStock) {
+      this.fetchStockHistory(this.selectedStock.id, this.selectedStock.productId);
+    }
+  }
+
+  private handleHistoryFetchError(error: any) {
+    console.error('Failed to load stock history:', error);
+    this.stockHistory = [];
+    this.isLoadingHistory = false;
+    this.showErrorMessage(error.message || 'Failed to load stock history');
   }
 
   hideStockHistory() {
     this.showStockHistory = false;
     this.stockHistory = [];
+    this.stockHistoryPage = null;
     this.selectedStock = null;
   }
 
@@ -277,16 +435,12 @@ export class AdminDashboardComponent implements OnInit {
     };
 
     this.isAddingStock = true;
-    this.stockService.addStock(operation, this.selectedStock?.quantity).subscribe({
+    this.stockService.addStock(operation).subscribe({
       next: () => {
         this.isAddingStock = false;
-        //this.viewStockHistory(this.selectedStock!);
         this.closeAddStockDialog();
         this.showSuccessMessage(`Successfully added ${operation.quantity} units to stock`);
         this.refreshCurrentStocks();
-        if (this.showStockHistory && this.selectedStock) {
-          this.viewStockHistory(this.selectedStock);
-        }
       },
       error: (error) => {
         console.error('Error adding stock:', error);
@@ -308,13 +462,11 @@ export class AdminDashboardComponent implements OnInit {
     this.stockService.consumeStock(operation, this.selectedStock?.quantity).subscribe({
       next: () => {
         this.isConsumingStock = false;
-        this.viewStockHistory(this.selectedStock!);
         this.closeConsumeStockDialog();
         this.showSuccessMessage(`Successfully consumed ${operation.quantity} units from stock`);
         this.refreshCurrentStocks();
-        // Refresh history if it's currently being viewed
         if (this.showStockHistory && this.selectedStock) {
-          this.viewStockHistory(this.selectedStock);
+          this.fetchStockHistory(this.selectedStock.storeId, this.selectedStock.productId);
         }
       },
       error: (error) => {
@@ -339,8 +491,7 @@ export class AdminDashboardComponent implements OnInit {
         this.isCreatingStock = false;
         this.closeCreateStockDialog();
         this.showSuccessMessage(`Successfully created stock with ${operation.quantity} units`);
-
-        // Refresh stocks if currently viewing the same store
+        
         if (this.showStocks && this.selectedStoreForStock && this.selectedStoreForStock.id === operation.storeId) {
           this.refreshCurrentStocks();
         }
@@ -355,17 +506,7 @@ export class AdminDashboardComponent implements OnInit {
 
   refreshCurrentStocks() {
     if (this.selectedStoreForStock) {
-      this.isLoadingStocks = true;
-      this.stockService.getStocksByStoreId(this.selectedStoreForStock.id).subscribe({
-        next: (stocks) => {
-          this.stocks = stocks;
-          this.isLoadingStocks = false;
-        },
-        error: (error) => {
-          console.error('Failed to refresh stocks:', error);
-          this.isLoadingStocks = false;
-        },
-      });
+      this.fetchStocksForStore(this.selectedStoreForStock.id);
     }
   }
 
