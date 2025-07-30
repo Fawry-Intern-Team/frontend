@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Store } from '../models/store.model';
+import { PageRequest, PageResponse } from '../models/pagination.model';
 
 @Injectable({
     providedIn: 'root',
@@ -21,6 +22,29 @@ export class StoreService {
                 }))),
                 catchError(this.handleError)
             );
+    }
+
+    getStoresPaginated(pageRequest: PageRequest): Observable<PageResponse<Store>> {
+        let params = new HttpParams()
+            .set('paginated', 'true')
+            .set('page', (pageRequest.page || 0).toString())
+            .set('size', (pageRequest.size || 10).toString())
+            .set('sortBy', pageRequest.sortBy || 'location')
+            .set('sortDirection', pageRequest.sortDirection || 'asc');
+
+        return this.http.get<PageResponse<Store>>(this.apiUrl, { 
+            params, 
+            withCredentials: true 
+        }).pipe(
+            map(page => ({
+                ...page,
+                content: page.content.map(store => ({
+                    ...store,
+                    location: this.capitalizeLocation(store.location)
+                }))
+            })),
+            catchError(this.handleError)
+        );
     }
 
     createStore(store: { location: string }): Observable<Store> {
@@ -57,10 +81,8 @@ export class StoreService {
         let errorMessage = 'An unknown error occurred';
         
         if (error.error instanceof ErrorEvent) {
-            // Client-side error
             errorMessage = error.error.message;
         } else {
-            // Server-side error
             if (error.status === 400 && error.error?.message) {
                 errorMessage = error.error.message;
             } else if (error.status === 404) {
