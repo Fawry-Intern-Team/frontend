@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { filter, Observable } from 'rxjs';
 import { StoreProductResponse } from '../models/store-product-response.model';
 
 @Injectable({
@@ -80,7 +80,7 @@ export class ProductService {
     params = params
       .set('page', (filters.page ?? 0).toString())
       .set('size', (filters.size ?? 10).toString());
-
+    console.log(filters.sortBy + " " + filters.keyword);
     return this.http.get<{
       content: StoreProductResponse[];
       totalPages: number;

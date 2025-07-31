@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { StoreProductResponse } from '../../models/store-product-response.model';
 import { CartService } from '../../services/cart.service';
 import { CommonModule, CurrencyPipe } from '@angular/common';
@@ -7,6 +7,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ImageModule } from 'primeng/image';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-product-card',
@@ -16,7 +17,8 @@ import { ImageModule } from 'primeng/image';
     CurrencyPipe,
     CardModule,
     ButtonModule,
-    ImageModule
+    ImageModule,
+    DialogModule,
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
@@ -25,6 +27,12 @@ export class ProductCardComponent {
   @Input() product!: StoreProductResponse;
 
   constructor(private cartService: CartService) {}
+
+  @Output() quickView = new EventEmitter<StoreProductResponse>();
+
+  openQuickView() {
+    this.quickView.emit(this.product);
+  }
 
   addToCart() {
     this.cartService.addToCart(this.product);

@@ -14,10 +14,12 @@ import { RoleGuard } from './shared/guards/role.guard';
 import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 import { LoginSuccessComponent } from './pages';
 import { OrderDachboard } from './pages/order-dachboard/order-dachboard';
+import { LoginFailureComponent } from './pages/login-failure/login-failure.component';
 export const routes: Routes = [
   ...AUTH_ROUTES, // public routes (login, register)
   { path: 'forbidden', component: ForbiddenComponent },
   { path: 'login-success', component: LoginSuccessComponent },
+  { path: 'login-failure', component: LoginFailureComponent },
   {
     path: '',
     canActivate: [AuthGuard], // must be authenticated

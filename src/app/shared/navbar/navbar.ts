@@ -10,10 +10,12 @@ import { AuthService } from '../../services';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { CartComponent } from '../../components/cart/cart.component';
+import { MenubarModule } from 'primeng/menubar';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MenuModule, AvatarModule, DrawerModule, ButtonModule,CartComponent],
+  imports: [CommonModule, RouterModule, MenuModule, AvatarModule, DrawerModule, ButtonModule, CartComponent, MenubarModule],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
@@ -80,6 +82,16 @@ export class Navbar {
     private router: Router,
     private auth: AuthService
   ) {}
+
+  navItems: MenuItem[] = [
+    {
+      label: 'Products',
+      routerLink: '/products',
+      icon: 'pi pi-tags'
+    }
+  ];
+  
+  
 
   viewProfile(): void {
     this.router.navigate(['/profile']);

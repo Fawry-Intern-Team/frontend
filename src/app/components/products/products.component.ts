@@ -7,6 +7,10 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { SliderModule } from 'primeng/slider';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { ImageModule } from 'primeng/image';
+import { CartService } from '../../services/cart.service';
 
 
 
@@ -71,7 +75,7 @@ export const PRODUCTS: StoreProductResponse[] = [
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent, SliderModule],
+  imports: [CommonModule, FormsModule, ProductCardComponent, SliderModule, ButtonModule, DialogModule, ImageModule],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })
@@ -95,7 +99,7 @@ export class ProductsComponent implements OnInit {
   sortBy: string = '';
   sortDirection: string = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private cartService: CartService) {}
 
   ngOnInit() {
     // this.products = PRODUCTS;
@@ -115,6 +119,18 @@ export class ProductsComponent implements OnInit {
       });
   }
 
+  selectedProduct !: StoreProductResponse;
+  showQuickView: boolean = false;
+
+  handleQuickView(product: StoreProductResponse) {
+    this.selectedProduct = product;
+    this.showQuickView = true;
+  }
+
+  addToCart() {
+    this.cartService.addToCart(this.selectedProduct);
+  }
+
   loadCategories() {
     this.productService.getAllCategories().subscribe({
       next: (cats) => {
@@ -129,8 +145,8 @@ export class ProductsComponent implements OnInit {
     console.log("dsgsdfgdfgdsfg");
     this.productService
       .searchProductsFiltered({
-        keyword: this.searchKeyword || undefined,
-        category: this.selectedCategory || undefined,
+        keyword: this.searchKeyword || " ",
+        category: this.selectedCategory || " ",
         min: this.minPrice ?? undefined,
         max: this.maxPrice ?? undefined,
         sortBy: this.sortBy || 'id',
