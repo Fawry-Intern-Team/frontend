@@ -14,7 +14,10 @@ export class CartService {
   getItems(): CartItem[] {
     return this.items;
   }
-
+  getTotal(): number {
+    return this.items
+      .reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  }
   /**
    * Add a product to the cart.
    * If it exists, increase its quantity by 1.

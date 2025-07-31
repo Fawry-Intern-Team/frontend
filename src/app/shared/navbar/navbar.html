@@ -1,64 +1,63 @@
-<nav class="bg-white shadow-md sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+<p-menubar class="bg-white shadow-md sticky top-0 z-50 px-4" [model]="navItems" [styleClass]="'border-none'">
+  <ng-template pTemplate="start">
+    <!-- Logo -->
+    <a routerLink="/" class="text-2xl font-bold text-blue-600">E-Commerce</a>
+  </ng-template>
 
-      <!-- Logo / Brand -->
-      <div class="flex-shrink-0">
-        <a routerLink="/" class="text-2xl font-bold text-blue-600">E-Commerce</a>
+  <ng-template pTemplate="end">
+    <div class="flex items-center space-x-4" *ngIf="isLoggedIn">
+
+      <!-- Cart Icon -->
+      <div class="relative flex items-center">
+        <!-- Badge -->
+        <span *ngIf="cartService.getItems().length"
+          class="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-[10px] font-bold rounded-full px-[6px] h-[18px] min-w-[18px] flex items-center justify-center z-10 shadow">
+          {{ cartService.getItems().length }}
+        </span>
+
+        <!-- Cart Drawer -->
+        <p-drawer [(visible)]="visible" position="right" styleClass="!w-full md:!w-80 lg:!w-[40rem]">
+          <!-- <ng-template pTemplate="header">
+            <div class="flex items-center text-xl font-semibold text-gray-800">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-gray-700" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M2.25 3h1.5l1.35 6.75a1.5 1.5 0 001.47 1.2h11.48a1.5 1.5 0 001.47-1.2l1.11-5.25H5.4" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M7.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17.25 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+              </svg>
+              Your Cart
+            </div>
+          </ng-template> -->
+          <app-cart />
+        </p-drawer>
+
+        <!-- Button -->
+        <button pButton type="button" icon="pi pi-shopping-cart"
+          class="p-button-rounded p-button-secondary bg-white border-gray-300 hover:shadow-md text-gray-800"
+          (click)="visible = true">
+        </button>
       </div>
 
-      <!-- Navigation Links -->
-      <div class="hidden md:flex space-x-8" *ngIf="isLoggedIn">
-        <a routerLink="/products" routerLinkActive="active-link"
-          class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
-          Products
-        </a>
+      <!-- Profile Dropdown (unchanged) -->
+      <div class="relative">
+        <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" [appendTo]="'body'"
+          styleClass="w-48 mt-2 shadow-lg border-0"></p-menu>
+
+        <button (click)="profileMenu.toggle($event)"
+          class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+
+          <p-avatar *ngIf="userProfilePicture; else fallback" [image]="userProfilePicture" size="normal" shape="circle"
+            styleClass="border-2 border-gray-200 hover:border-blue-300 transition cursor-pointer"></p-avatar>
+
+          <ng-template #fallback>
+            <p-avatar [label]="userInitials" size="normal" shape="circle"
+              styleClass="border-2 border-gray-200 hover:border-blue-300 transition cursor-pointer"></p-avatar>
+          </ng-template>
+
+          <i class="pi pi-chevron-down text-gray-500 text-xs cursor-pointer"></i>
+        </button>
       </div>
-
-      <!-- Right Side: Cart and Profile -->
-      <div class="flex items-center space-x-4" *ngIf="isLoggedIn">
-        <!-- Cart Icon -->
-        <div class="relative">
-          <span *ngIf="cartService.getItems().length"
-            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[20px] text-center">
-            {{ cartService.getItems().length }}
-          </span>
-
-          <p-drawer [(visible)]="visible" header=" 🛒 Your Cart" position="right" styleClass="!w-full md:!w-80 lg:!w-[40rem]">
-            <app-cart />
-          </p-drawer>
-          <button pButton type="button" icon="pi pi-shopping-cart" class="p-button-rounded p-button-secondary "
-            (click)="visible = true"></button>
-        </div>
-        <!-- Profile Dropdown -->
-        <div class="relative">
-          <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" [appendTo]="'body'"
-            styleClass="w-48 mt-2 shadow-lg border-0">
-          </p-menu>
-
-          <button (click)="profileMenu.toggle($event)"
-            class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-
-            <!-- Profile Picture -->
-            <p-avatar *ngIf="userProfilePicture; else fallback" [image]="userProfilePicture" size="normal"
-              shape="circle" styleClass="border-2 border-gray-200 hover:border-blue-300 transition cursor-pointer">
-            </p-avatar>
-
-            <ng-template #fallback>
-              <p-avatar [label]="userInitials" size="normal" shape="circle"
-                styleClass="border-2 border-gray-200 hover:border-blue-300 transition cursor-pointer">
-              </p-avatar>
-            </ng-template>
-
-            <!-- Dropdown Arrow -->
-            <i class="pi pi-chevron-down text-gray-500 text-xs cursor-pointer"></i>
-          </button>
-
-        </div>
-
-
-      </div>
-
     </div>
-  </div>
-</nav>
+  </ng-template>
+</p-menubar>

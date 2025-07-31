@@ -8,31 +8,30 @@
   <!-- Search Bar -->
   <div class="flex justify-center mb-8">
     <div class="w-full max-w-2xl relative">
-      <div class="relative flex items-center bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-        <input 
-          [(ngModel)]="searchKeyword" 
-          (ngModelChange)="onSearchChange($event)" 
-          placeholder="Search products..."
+      <div
+        class="relative flex items-center bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+        <input [(ngModel)]="searchKeyword" (ngModelChange)="onSearchChange($event)" placeholder="Search products..."
           class="flex-grow bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none px-4 py-3 text-lg rounded-lg" />
-        
-        <button 
-          (click)="fetchFilteredProducts()"
+
+        <button (click)="fetchFilteredProducts()"
           class="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-semibold px-6 py-3 rounded-lg mr-0.5 transition-colors duration-300 flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
           Search
         </button>
       </div>
-      
+
       <!-- Suggestions dropdown -->
-      <ul *ngIf="suggestions.length" class="absolute top-full left-0 bg-white border-2 border-gray-200 w-full mt-2 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-        <li *ngFor="let suggestion of suggestions" 
-            (click)="selectSuggestion(suggestion)"
-            class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-200">
+      <ul *ngIf="suggestions.length"
+        class="absolute top-full left-0 bg-white border-2 border-gray-200 w-full mt-2 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+        <li *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)"
+          class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-200">
           <div class="flex items-center gap-3">
             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
             {{ suggestion }}
           </div>
@@ -45,24 +44,26 @@
   <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
     <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
       <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+        </path>
       </svg>
       Filters & Sorting
     </h2>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      
+
       <!-- Category Filter -->
       <div class="space-y-3">
         <label class="block text-sm font-medium text-gray-700 flex items-center">
           <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+            </path>
           </svg>
           Category
         </label>
-        <select 
-          [(ngModel)]="selectedCategory" 
-          (change)="onCategoryChange()"
+        <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()"
           class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white text-gray-800 text-sm">
           <option value="">All Categories</option>
           <option *ngFor="let category of categories" [value]="category">
@@ -75,13 +76,12 @@
       <div class="space-y-3">
         <label class="block text-sm font-medium text-gray-700 flex items-center">
           <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
           </svg>
           Sort By
         </label>
-        <select 
-          [(ngModel)]="sortBy" 
-          (change)="changeSort(sortBy, sortDirection)"
+        <select [(ngModel)]="sortBy" (change)="changeSort(sortBy, sortDirection)"
           class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white text-gray-800 text-sm">
           <option value="" disabled>Select Sort</option>
           <option value="name">Name</option>
@@ -98,9 +98,7 @@
           </svg>
           Direction
         </label>
-        <select 
-          [(ngModel)]="sortDirection" 
-          (change)="changeSort(sortBy, sortDirection)"
+        <select [(ngModel)]="sortDirection" (change)="changeSort(sortBy, sortDirection)"
           class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white text-gray-800 text-sm">
           <option value="" disabled>Select Direction</option>
           <option value="asc">Ascending ↑</option>
@@ -112,28 +110,25 @@
       <div class="space-y-3 w-full">
         <label class="block text-sm font-medium text-gray-700 flex items-center">
           <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
           </svg>
           Price Range
         </label>
         <div class="flex gap-2 items-center w-full">
-          <input 
-            type="number" 
-            [(ngModel)]="minPrice" 
-            placeholder="Min"
+          <input type="number" [(ngModel)]="minPrice" placeholder="Min"
             class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 text-sm">
           <span class="text-gray-400 font-medium flex-shrink-0">-</span>
-          <input 
-            type="number" 
-            [(ngModel)]="maxPrice" 
-            placeholder="Max"
+          <input type="number" [(ngModel)]="maxPrice" placeholder="Max"
             class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 text-sm">
         </div>
-        <button 
-          (click)="onPriceChange()" 
+        <button (click)="onPriceChange()"
           class="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer font-semibold py-2.5 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 text-sm">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+            </path>
           </svg>
           Apply Filter
         </button>
@@ -153,7 +148,8 @@
   <div *ngIf="!isLoading && products.length === 0" class="text-center py-16">
     <div class="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto border border-gray-100">
       <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
       <h3 class="text-xl font-semibold text-gray-700 mb-2">No Products Found</h3>
       <p class="text-gray-500">Try adjusting your search criteria or filters to find what you're looking for</p>
@@ -164,31 +160,26 @@
   <div *ngIf="!isLoading && products.length > 0" class="mb-8">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-semibold text-gray-800">
-        Products 
+        Products
         <span class="text-base font-normal text-gray-500 bg-gray-100 px-3 py-1 rounded-full ml-3">
           {{ products.length }} items
         </span>
       </h2>
     </div>
-    
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-      <app-product-card 
-        *ngFor="let product of products" 
-        [product]="product"
+      <app-product-card *ngFor="let product of products" [product]="product" (quickView)="handleQuickView($event)"
         class="transform hover:scale-105 transition-transform duration-200">
       </app-product-card>
     </div>
   </div>
-  
+
   <!-- Pagination -->
   <div *ngIf="totalPages > 1" class="flex justify-center">
     <div class="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
       <div class="flex flex-wrap justify-center gap-2">
-        <button 
-          *ngFor="let pageNum of [].constructor(totalPages); let i = index" 
-          (click)="goToPage(i)"
-          [disabled]="i === currentPage"
-          [class]="i === currentPage 
+        <button *ngFor="let pageNum of [].constructor(totalPages); let i = index" (click)="goToPage(i)"
+          [disabled]="i === currentPage" [class]="i === currentPage 
             ? 'bg-blue-600 text-white cursor-not-allowed' 
             : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300'"
           class="min-w-[44px] h-11 px-4 py-2 rounded-lg border-2 border-gray-300 font-medium transition-all duration-300 flex items-center justify-center">
@@ -199,12 +190,55 @@
   </div>
 
   <!-- Back to Top Button -->
-  <button
-    *ngIf="products.length > 0"
-    (click)="scrollToTop()"
+  <button *ngIf="products.length > 0" (click)="scrollToTop()"
     class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 cursor-pointer rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50">
     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
     </svg>
   </button>
 </div>
+
+<p-dialog 
+  header="Product Overview"
+  [(visible)]="showQuickView"
+  [modal]="true"
+  [dismissableMask]="true"
+  [style]="{width: '90vw', maxWidth: '640px'}"
+  class="rounded-xl"
+  (onHide)="showQuickView = false">
+
+  <ng-container *ngIf="selectedProduct">
+    <div class="flex flex-col md:flex-row gap-6">
+      <!-- Image -->
+      <img 
+        [src]="selectedProduct.imageUrl || ''" 
+        alt="Product image"
+        class="w-full md:w-1/2 h-60 object-cover rounded-xl border border-gray-300 shadow-sm" />
+
+      <!-- Info -->
+      <div class="flex-1 space-y-3">
+        <h3 class="text-2xl font-semibold text-gray-800">
+          {{ selectedProduct.productName || 'Product Name' }}
+        </h3>
+        <p class="text-gray-600 text-sm">
+          Category: <span class="font-medium text-gray-800">{{ selectedProduct.categoryName || 'Uncategorized' }}</span>
+        </p>
+        <p class="text-gray-600 text-sm">
+          Location: <i class="pi pi-map-marker text-gray-400 mr-1"></i>
+          <span class="font-medium text-gray-800">{{ (selectedProduct.storeLocation || 'Unknown Store') | titlecase}}</span>
+        </p>
+        <p class="text-2xl font-bold text-primary">
+          {{ selectedProduct.price | currency }}
+        </p>
+        <p-button 
+          label="Add to Cart"
+          icon="pi pi-shopping-cart"
+          [raised]="true"
+          severity="primary"
+          class="w-full md:w-auto"
+          (onClick)="addToCart()">
+        </p-button>
+      </div>
+    </div>
+  </ng-container>
+</p-dialog>
